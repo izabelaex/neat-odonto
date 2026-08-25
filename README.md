@@ -26,17 +26,21 @@ O Neat Odonto é um sistema web para gestão de consultórios odontológicos de 
  
 - React 18 + Vite
 - React Router
+
 **Backend**
  
 - Python 3.11 + FastAPI
 - SQLAlchemy (ORM) + Alembic (migrações)
 - Google OAuth 2.0 (autenticação) + Google Calendar API - ainda em decisão
+
 **Banco de dados**
  
 - PostgreSQL (produção) / SQLite (desenvolvimento local)
+  
 **Armazenamento de arquivos**
  
 - Sistema de arquivos local, com caminho referenciado no banco
+  
 **Agentes de IA**
  
 - Claude Code
