@@ -14,6 +14,36 @@ Trabalho de Engenharia de Software 1
 | Lara Amélia Maia de Freitas | Fullstack | Developer |
 
 ---
+## Objetivo do Sistema
+ 
+O Neat Odonto é um sistema web para gestão de consultórios odontológicos de pequeno porte, voltado a dentistas que ainda organizam prontuários em papel ou planilhas. O sistema centraliza o cadastro de pacientes com anamnese e documentos clínicos (fotos, radiografias e exames), o histórico de consultas realizadas e o plano de tratamento com orçamento e controle de parcelas pagas. Um diferencial é o registro dos dados de esterilização a cada consulta — pacote, lote, ciclo, data e responsável —, exigência sanitária que hoje costuma ser cumprida em cadernos avulsos e de difícil auditoria. A agenda do profissional é integrada ao Google Agenda, evitando que ele mantenha dois calendários paralelos.
+ 
+---
+ 
+## Tecnologias
+ 
+**Frontend**
+ 
+- React 18 + Vite
+- React Router
+**Backend**
+ 
+- Python 3.11 + FastAPI
+- SQLAlchemy (ORM) + Alembic (migrações)
+- Google OAuth 2.0 (autenticação) + Google Calendar API - ainda em decisão
+**Banco de dados**
+ 
+- PostgreSQL (produção) / SQLite (desenvolvimento local)
+**Armazenamento de arquivos**
+ 
+- Sistema de arquivos local, com caminho referenciado no banco
+**Agentes de IA**
+ 
+- Claude Code
+- Codex
+- Cursor
+---
+
 
 ## User Stories
 
