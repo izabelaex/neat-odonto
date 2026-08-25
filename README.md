@@ -16,7 +16,7 @@ Trabalho de Engenharia de Software 1
 ---
 ## Objetivo do Sistema
  
-O Neat Odonto é um sistema web para gestão de consultórios odontológicos de pequeno porte, voltado a dentistas que ainda organizam prontuários em papel ou planilhas. O sistema centraliza o cadastro de pacientes com anamnese e documentos clínicos (fotos, radiografias e exames), o histórico de consultas realizadas e o plano de tratamento com orçamento e controle de parcelas pagas. Um diferencial é o registro dos dados de esterilização a cada consulta — pacote, lote, ciclo, data e responsável —, exigência sanitária que hoje costuma ser cumprida em cadernos avulsos e de difícil auditoria. A agenda do profissional é integrada ao Google Agenda, evitando que ele mantenha dois calendários paralelos.
+O Neat Odonto é um sistema web para gestão de consultórios odontológicos de pequeno porte, voltado para dentistas que ainda dependem de planilhas para a sua organização. O sistema possui cadastro de pacientes com anamnese e documentos clínicos (fotos, radiografias e exames), o histórico de consultas realizadas e o plano de tratamento com orçamento e controle de parcelas pagas. O diferencial do nosso sistema é o registro dos dados de esterilização a cada consulta — pacote, lote, ciclo, data e responsável —, exigência sanitária que hoje costuma ser cumprida em cadernos avulsos e de difícil acompanhamento. A agenda do profissional é integrada ao Google Agenda, evitando que ele mantenha dois calendários.
  
 ---
  
