@@ -67,14 +67,19 @@ Como dentista, eu gostaria de fazer o cadastro e edição de cada paciente, com 
 
 Como dentista, eu gostaria de ver uma lista de todos os meus pacientes e filtrá-la por nome.
 
-**5. Registro de Consultas**
+**5. Busca Rápida de Paciente** 
+
+Como dentista, eu gostaria de buscar rapidamente um paciente pelo nome ou CPF, para que eu encontre seu cadastro com mais facilidade.
+
+**6. Registro de Consultas**
 
 Como dentista, eu gostaria de adicionar e consultar, para cada paciente, as consultas realizadas por data e os procedimentos realizados.
 
-**6. Informações de Esterilização**
+**7. Informações de Esterilização**
 
 Como dentista, eu gostaria de adicionar em cada consulta informações sobre o pacote de esterilização utilizado, como foto do pacote, lote, ciclo/data e nome do responsável pela esterilização.
 
-**7. Plano de Tratamento e Orçamento**
+**8. Plano de Tratamento e Orçamento**
 
 Como dentista, eu gostaria de adicionar em cada paciente um plano de tratamento, que inclui os nomes dos procedimentos realizados e o orçamento combinado para eles, com o número de parcelas totais e já pagas.
+
