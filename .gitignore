@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+.env
+
+# Uploads de pacientes (fotos, radiografias) nunca vao para o repositorio
+backend/uploads/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Editores
+.vscode/
+.idea/
+.DS_Store
