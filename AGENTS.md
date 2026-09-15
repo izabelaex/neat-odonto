@@ -194,3 +194,42 @@ Em aberto:
 - Implementação
 
 ---
+
+## 8. Como avaliar se você (agente) está ajudando
+
+Antes de propor qualquer coisa, verifique:
+
+- [ ] O que estou gerando cabe em menos de 100 linhas por commit?
+- [ ] A mensagem de commit segue Conventional Commits?
+- [ ] Isso está dentro das ~8 histórias já definidas, ou estou ampliando o escopo?
+- [ ] São testes? Se sim, o TP1 não os considera — deixe para depois.
+- [ ] O humano responsável consegue explicar esse código em uma apresentação?
+- [ ] Estou usando nomes de domínio, não nomes técnicos genéricos?
+- [ ] Estou assumindo que o OAuth foi decidido? (Ele não foi.)
+
+Se a resposta a qualquer uma dessas perguntas for problemática, **pare e pergunte** antes de gerar.
+
+---
+
+## 9. Entrega
+
+- **Apresentação em sala**: demo de 10 min + 5 min de slides sobre uso de IA. Todos presentes.
+- **Relato sobre uso de IA** (slides, não relatório): pontos positivos e negativos, dicas, boas
+  práticas, hacks, padrões e anti-padrões, como foi trabalhar em equipe com os agentes, **qual % do
+  código foi gerado automaticamente**, e um parecer final.
+- **Retrospectiva assíncrona** via Google Forms (link no Moodle), até 23:59 da última data de
+  apresentação.
+
+**Distribuição dos 15 pontos:**
+
+| Item | Pontos |
+|---|---|
+| Implementação das histórias e qualidade da UI | 7 |
+| Relatório sobre uso de IA | 6 |
+| Documentação | 1 |
+| Retrospectiva | 1 |
+
+Note que o relatório sobre uso de IA vale quase tanto quanto a implementação. **Vale a pena anotar
+ao longo do sprint** o que funcionou e o que não funcionou com os agentes — prompts que deram
+certo, momentos em que o agente atrapalhou, estimativa de quanto do código veio de IA. Reconstruir
+isso de memória na véspera custa pontos.
