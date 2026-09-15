@@ -25,5 +25,6 @@ def saude():
 
 
 # Registre os routers de cada área abaixo, um por linha:
-# from app.routers import pacientes
-# app.include_router(pacientes.router)
+from app.routers import pacientes
+
+app.include_router(pacientes.router)
