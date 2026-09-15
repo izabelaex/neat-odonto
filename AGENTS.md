@@ -91,3 +91,106 @@ Dentista
 - **CPF** é identificador de paciente, mas trate como dado sensível: não logue, não exponha em URL.
 
 ---
+
+## 4. Stack acordada
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React 18 + Vite + Tailwind CSS + Axios |
+| Backend | FastAPI (Python) + SQLAlchemy + Alembic |
+| Banco (produção) | PostgreSQL |
+| Banco (desenvolvimento) | SQLite |
+| Auth / Agenda | Google OAuth 2.0 + Google Calendar API |
+| Agentes de IA | Claude Code e GitHub Copilot (modo agente) |
+
+A arquitetura exigida pela disciplina é **backend com API + banco de dados** e **frontend web**.
+Arquiteturas alternativas não são aceitas.
+
+### Decisão em aberto
+
+A integração com **Google OAuth (login + Google Agenda)** ainda **não está fechada**. O time quer
+avaliar a complexidade antes de se comprometer, justamente porque o sistema vai para uso real.
+
+**Agentes: não assumam que o OAuth está decidido.** Não gerem código que dependa dele sem que a
+decisão tenha sido tomada. Se o assunto aparecer, isole a autenticação atrás de uma interface para
+que a troca por um login simples (e-mail + senha) não exija reescrita.
+
+---
+
+## 5. Regras da disciplina (não negociáveis)
+
+Estas regras valem nota. Um agente que as ignora custa pontos ao time inteiro.
+
+### Commits
+
+- **Máximo de 100 LOC por commit.** Exceções precisam ser justificadas na mensagem do commit.
+  Um agente que gera 600 linhas de uma vez precisa ter o trabalho **quebrado em commits menores**
+  antes do push.
+- **Conventional Commits obrigatório.** Prefixos: `feat:`, `fix:`, `refactor:`, `docs:`, `style:`,
+  `test:`, `perf:`, `build:`, `chore:`, `revert:`.
+  ```
+  git commit -m "feat: add sterilization cycle tracking to consultation form"
+  git commit -m "fix: prevent duplicate CPF on patient creation"
+  git commit -m "docs: add UML class diagram to README"
+  ```
+- **Todos os membros precisam ter commits: no mínimo 15% do total por pessoa.** Não deixe uma
+  pessoa fazer o push do trabalho de outra. Se você programou em par, use `Co-authored-by:`.
+
+### Uso de IA
+
+- Usar **modelo de agentes**, não de auto-complete.
+- **Todo código gerado tem que ser revisado, entendido e aprovado por pelo menos um membro do
+  grupo.** Código que ninguém consegue explicar não entra no repositório.
+- **Todos os membros devem dominar todos os aspectos do sistema** — código, arquitetura, banco de
+  dados, interface. Haverá apresentação em sala com o time inteiro presente.
+
+### Escopo
+
+- **~2 histórias de usuário por membro → ~8 histórias no total.** O README é a fonte de verdade
+  das histórias; não invente histórias novas nem amplie o escopo por conta própria.
+- O sistema é pequeno de propósito. **Não precisa ter todas as features.** Antes de adicionar
+  qualquer coisa que não esteja nas histórias, pergunte.
+
+### Testes
+
+- **Testes automatizados serão desconsiderados no TP1** (são o foco do TP2). Agentes de código tendem
+  a gerar testes automaticamente — **não gaste orçamento de commit com eles agora**. Se o agente
+  gerar testes junto com a feature, remova-os do commit ou deixe em branch separada.
+
+### Documentação
+
+- **UML no próprio README**, com **pelo menos dois tipos de diagrama**.
+- Sugestão do professor: usar **mermaid** em markdown.
+- Podem ser gerados por IA, **mas devem ser revisados**.
+
+---
+
+## 6. Convenções do projeto
+
+- **Nomes refletem o problema de domínio, não a implementação técnica.** Foi por isso que o nome de
+  repositório `dental-crud` foi rejeitado em favor de *Neat Odonto*. O mesmo vale para tabelas,
+  rotas, componentes e variáveis: `SterilizationRecord`, não `SterData`; `/pacientes/{id}/consultas`,
+  não `/api/v1/data`.
+- **Interface em português.** A usuária final é a dentista. Código e nomes técnicos em inglês,
+  textos visíveis ao usuário em português.
+- **Migrações com Alembic sempre.** Nada de alterar o schema direto no banco.
+- **Não reformate arquivos além do que foi pedido.** Se a tarefa é ajustar uma função, o diff deve
+  conter só aquela função — caso contrário o limite de 100 LOC estoura por ruído.
+
+---
+
+## 7. Estado atual
+
+Já entregue:
+
+- Histórias de usuário definidas
+- Nome do repositório e do produto
+- README (iterado em várias versões)
+
+Em aberto:
+
+- Decisão sobre Google OAuth / integração com a agenda
+- Diagramas UML no README
+- Implementação
+
+---
