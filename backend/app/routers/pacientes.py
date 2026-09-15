@@ -87,3 +87,66 @@ def atualizar_paciente(paciente_id: int, dados: PacienteUpdate, db: Session = De
     db.refresh(paciente)
     return paciente
 
+
+@router.post(
+    "/{paciente_id}/documentos",
+    response_model=DocumentoPacienteOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def adicionar_documento(
+    paciente_id: int,
+    tipo: str = Form(...),
+    descricao: str | None = Form(None),
+    arquivo: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    paciente = db.get(Paciente, paciente_id)
+    if not paciente:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente não encontrado")
+    if tipo not in TIPOS_DOCUMENTO:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Tipo de documento inválido")
+
+    pasta = Path(settings.upload_dir) / "pacientes" / str(paciente_id)
+    pasta.mkdir(parents=True, exist_ok=True)
+    extensao = Path(arquivo.filename or "").suffix
+    caminho = pasta / f"{uuid.uuid4().hex}{extensao}"
+    with open(caminho, "wb") as destino:
+        destino.write(arquivo.file.read())
+
+    documento = DocumentoPaciente(
+        paciente_id=paciente_id,
+        tipo=tipo,
+        caminho_arquivo=str(caminho),
+        descricao=descricao,
+    )
+    db.add(documento)
+    db.commit()
+    db.refresh(documento)
+    return documento
+
+
+@router.get("/{paciente_id}/documentos/{documento_id}/arquivo")
+def baixar_documento(paciente_id: int, documento_id: int, db: Session = Depends(get_db)):
+    documento = (
+        db.query(DocumentoPaciente)
+        .filter(DocumentoPaciente.id == documento_id, DocumentoPaciente.paciente_id == paciente_id)
+        .first()
+    )
+    if not documento or not os.path.exists(documento.caminho_arquivo):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Documento não encontrado")
+    return FileResponse(documento.caminho_arquivo)
+
+
+@router.delete("/{paciente_id}/documentos/{documento_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remover_documento(paciente_id: int, documento_id: int, db: Session = Depends(get_db)):
+    documento = (
+        db.query(DocumentoPaciente)
+        .filter(DocumentoPaciente.id == documento_id, DocumentoPaciente.paciente_id == paciente_id)
+        .first()
+    )
+    if not documento:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Documento não encontrado")
+    if os.path.exists(documento.caminho_arquivo):
+        os.remove(documento.caminho_arquivo)
+    db.delete(documento)
+    db.commit()
