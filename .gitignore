@@ -18,3 +18,5 @@ dist/
 .vscode/
 .idea/
 .DS_Store
+.claude/
+NOTAS-IA.md

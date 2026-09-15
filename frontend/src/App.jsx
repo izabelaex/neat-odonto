@@ -1,4 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
+import ListaPacientes from './pages/ListaPacientes'
+import FormularioPaciente from './pages/FormularioPaciente'
+import FichaPaciente from './pages/FichaPaciente'
 
 /**
  * Arvore de rotas do sistema.
@@ -11,8 +14,10 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Placeholder />} />
-      {/* <Route path="/pacientes" element={<ListaPacientes />} /> */}
-      {/* <Route path="/pacientes/:id" element={<FichaPaciente />} /> */}
+      <Route path="/pacientes" element={<ListaPacientes />} />
+      <Route path="/pacientes/novo" element={<FormularioPaciente />} />
+      <Route path="/pacientes/:id" element={<FichaPaciente />} />
+      <Route path="/pacientes/:id/editar" element={<FormularioPaciente />} />
       {/* <Route path="/agenda" element={<Agenda />} /> */}
     </Routes>
   )
