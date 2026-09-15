@@ -77,7 +77,7 @@ def atualizar_paciente(paciente_id: int, dados: PacienteUpdate, db: Session = De
     paciente = db.get(Paciente, paciente_id)
     if not paciente:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente não encontrado")
-    for campo, valor in dados.model_dump().items():
+    for campo, valor in dados.model_dump(exclude_unset=True).items():
         setattr(paciente, campo, valor)
     try:
         db.commit()
