@@ -116,3 +116,23 @@ def registrar_pagamento(parcela_id: int, dados: PagamentoCreate, db: Session = D
     plano = parcela.plano
     db.refresh(plano)
     return plano
+
+
+@router.delete("/planos-tratamento/{plano_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remover_plano(plano_id: int, db: Session = Depends(get_db)):
+    """Remove o plano junto com suas parcelas e pagamentos."""
+    db.delete(obter_plano_ou_404(plano_id, db))
+    db.commit()
+
+
+@router.delete("/pagamentos/{pagamento_id}", response_model=PlanoTratamentoOut)
+def remover_pagamento(pagamento_id: int, db: Session = Depends(get_db)):
+    """Desfaz um pagamento lançado por engano. Devolve o plano atualizado."""
+    pagamento = db.get(Pagamento, pagamento_id)
+    if not pagamento:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Pagamento não encontrado")
+    plano = pagamento.parcela.plano
+    db.delete(pagamento)
+    db.commit()
+    db.refresh(plano)
+    return plano
