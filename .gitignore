@@ -20,3 +20,10 @@ dist/
 .DS_Store
 .claude/
 NOTAS-IA.md
+
+# Anotacoes pessoais de apoio ao desenvolvimento (nao fazem parte da entrega)
+/docs/ARQUITETURA_LOGIN_AGENDA.md
+/docs/GOOGLE_SETUP.md
+/docs/VALIDACAO_LOGIN_AGENDA.md
+/docs/COMMITS_BACKEND.md
+/docs/COMMITS_FRONTEND.md

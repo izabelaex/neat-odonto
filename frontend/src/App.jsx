@@ -1,4 +1,9 @@
-import { Routes, Route } from 'react-router-dom'
+import { Navigate, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './auth/AuthProvider'
+import ProtectedRoute from './auth/ProtectedRoute'
+import AppLayout from './components/AppLayout'
+import Login from './pages/Login'
+import Agenda from './pages/Agenda'
 import ListaPacientes from './pages/ListaPacientes'
 import FormularioPaciente from './pages/FormularioPaciente'
 import FichaPaciente from './pages/FichaPaciente'
@@ -12,24 +17,17 @@ import FichaPaciente from './pages/FichaPaciente'
  */
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Placeholder />} />
+    <AuthProvider><Routes>
+      <Route path="/login" element={<Login />} />
+      <Route element={<ProtectedRoute />}><Route element={<AppLayout />}>
+      <Route path="/" element={<Navigate to="/agenda" replace />} />
       <Route path="/pacientes" element={<ListaPacientes />} />
       <Route path="/pacientes/novo" element={<FormularioPaciente />} />
       <Route path="/pacientes/:id" element={<FichaPaciente />} />
       <Route path="/pacientes/:id/editar" element={<FormularioPaciente />} />
-      {/* <Route path="/agenda" element={<Agenda />} /> */}
-    </Routes>
-  )
-}
-
-function Placeholder() {
-  return (
-    <main className="mx-auto max-w-2xl px-6 py-20">
-      <h1 className="text-2xl font-semibold">Neat Odonto</h1>
-      <p className="mt-2 text-tintaSuave">
-        Estrutura inicial no ar. As telas entram a partir daqui.
-      </p>
-    </main>
+      <Route path="/agenda" element={<Agenda />} />
+      </Route></Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes></AuthProvider>
   )
 }

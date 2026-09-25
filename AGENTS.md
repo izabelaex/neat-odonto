@@ -56,7 +56,7 @@ inteiro na apresentação.
 
 ```
 Dentista (um só, nesta versão)
-├── Agenda (link do Google Agenda, exibido em iframe)
+├── Agenda (Google Calendar API: listar, criar e excluir agendamentos)
 └── Paciente
     ├── nome, telefone, CPF, endereço
     ├── anamnese (queixa principal, texto livre)
@@ -115,13 +115,14 @@ Não reabra estas decisões nem gere código que as contrarie.
 **Um único dentista.** Nenhuma tabela tem coluna de dono; os dados não são particionados por
 usuário. Multiusuário não está no escopo do TP1.
 
-**Login local, com e-mail e senha.** O OAuth do Google foi descartado. A complexidade de tela de
-consentimento, verificação de app e escopos não se paga: o login vale zero ponto, e as histórias
-valem 7.
+**Login Google autorizado pela PO.** Izabela aprovou a implementação por Vitor nas US1/US2.
+OpenID Connect autentica a única conta configurada em `ALLOWED_GOOGLE_EMAIL`.
+Não implementar cadastro público ou login por senha. A sessão do sistema usa cookie HttpOnly.
 
-**A agenda do Google entra por link, não pela API.** A URL de incorporação fica em
-`GOOGLE_CALENDAR_EMBED_URL` no `.env` e é exibida num iframe. Consequência importante: o sistema
-**exibe** a agenda, não cria eventos nela. A dentista continua marcando pelo Google Agenda.
+**Google Calendar API.** A dentista autoriza a agenda separadamente após entrar.
+O sistema lista, cria e exclui eventos em um calendário próprio da conta autorizada.
+Credenciais ficam no backend; refresh token cifrado. Eventos não criam consultas clínicas.
+Configuração necessária para executar o projeto: `SETUP.md` e `backend/.env.example`.
 
 **Uploads ficam em disco.** O banco guarda só o caminho. Nada de S3 ou serviço externo.
 
@@ -250,7 +251,7 @@ Falta:
 - [ ] São testes? O TP1 não os considera.
 - [ ] O responsável consegue explicar esse código numa apresentação?
 - [ ] Os nomes são de domínio, não técnicos genéricos?
-- [ ] Estou respeitando as decisões da seção 5? (Sem OAuth. Sem multiusuário. Agenda só exibe.)
+- [ ] Estou respeitando a seção 5? (Google Login, Calendar API, um único dentista.)
 
 Se alguma resposta for problemática, **pare e pergunte** antes de gerar.
 
