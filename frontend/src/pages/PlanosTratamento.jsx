@@ -4,6 +4,7 @@ import { obterPaciente } from '../api/pacientes'
 import { listarPlanos } from '../api/tratamento'
 import Botao from '../components/Botao'
 import Cartao from '../components/Cartao'
+import FormularioPlano from '../components/FormularioPlano'
 import { formatarReais } from '../utils/dinheiro'
 
 const ROTULOS_STATUS = {
@@ -23,6 +24,7 @@ export default function PlanosTratamento() {
   const [planos, setPlanos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
+  const [criando, setCriando] = useState(false)
 
   useEffect(() => {
     Promise.all([obterPaciente(id), listarPlanos(id)])
@@ -48,12 +50,26 @@ export default function PlanosTratamento() {
           <h1 className="text-2xl font-semibold text-tinta">Plano de tratamento</h1>
           <p className="text-tintaSuave">{paciente.nome}</p>
         </div>
-        <Link to={`/pacientes/${id}`}>
-          <Botao variante="secundaria">Voltar</Botao>
-        </Link>
+        <div className="flex gap-3">
+          <Link to={`/pacientes/${id}`}>
+            <Botao variante="secundaria">Voltar</Botao>
+          </Link>
+          {!criando && <Botao onClick={() => setCriando(true)}>Novo plano</Botao>}
+        </div>
       </div>
 
-      {planos.length === 0 && (
+      {criando && (
+        <FormularioPlano
+          pacienteId={id}
+          onCancelar={() => setCriando(false)}
+          onCriado={(plano) => {
+            setPlanos((atuais) => [plano, ...atuais])
+            setCriando(false)
+          }}
+        />
+      )}
+
+      {planos.length === 0 && !criando && (
         <p className="text-tintaSuave">Nenhum plano de tratamento cadastrado ainda.</p>
       )}
 
