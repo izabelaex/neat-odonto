@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.paciente import Paciente
-from app.models.tratamento import Parcela, PlanoTratamento
+from app.models.tratamento import Pagamento, Parcela, PlanoTratamento
 from app.schemas.tratamento import (
+    PagamentoCreate,
     PlanoTratamentoCreate,
     PlanoTratamentoOut,
     PlanoTratamentoUpdate,
@@ -87,5 +88,31 @@ def atualizar_plano(plano_id: int, dados: PlanoTratamentoUpdate, db: Session = D
     for campo, valor in dados.model_dump(exclude_none=True).items():
         setattr(plano, campo, valor)
     db.commit()
+    db.refresh(plano)
+    return plano
+
+
+@router.post(
+    "/parcelas/{parcela_id}/pagamentos",
+    response_model=PlanoTratamentoOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def registrar_pagamento(parcela_id: int, dados: PagamentoCreate, db: Session = Depends(get_db)):
+    """Registra dinheiro que entrou numa parcela. Aceita pagamento parcial.
+
+    Devolve o plano inteiro, já com os totais recalculados, para a tela atualizar.
+    """
+    parcela = db.get(Parcela, parcela_id)
+    if not parcela:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Parcela não encontrada")
+    restante = parcela.valor_centavos - parcela.valor_pago_centavos
+    if dados.valor_centavos > restante:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "Pagamento maior do que o valor que falta nesta parcela",
+        )
+    db.add(Pagamento(parcela_id=parcela_id, **dados.model_dump()))
+    db.commit()
+    plano = parcela.plano
     db.refresh(plano)
     return plano
