@@ -6,7 +6,11 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.paciente import Paciente
 from app.models.tratamento import Parcela, PlanoTratamento
-from app.schemas.tratamento import PlanoTratamentoCreate, PlanoTratamentoOut
+from app.schemas.tratamento import (
+    PlanoTratamentoCreate,
+    PlanoTratamentoOut,
+    PlanoTratamentoUpdate,
+)
 
 router = APIRouter(tags=["tratamento"])
 
@@ -62,3 +66,26 @@ def listar_planos(paciente_id: int, db: Session = Depends(get_db)):
         .order_by(PlanoTratamento.criado_em.desc(), PlanoTratamento.id.desc())
         .all()
     )
+
+
+def obter_plano_ou_404(plano_id: int, db: Session) -> PlanoTratamento:
+    plano = db.get(PlanoTratamento, plano_id)
+    if not plano:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Plano de tratamento não encontrado")
+    return plano
+
+
+@router.get("/planos-tratamento/{plano_id}", response_model=PlanoTratamentoOut)
+def obter_plano(plano_id: int, db: Session = Depends(get_db)):
+    return obter_plano_ou_404(plano_id, db)
+
+
+@router.put("/planos-tratamento/{plano_id}", response_model=PlanoTratamentoOut)
+def atualizar_plano(plano_id: int, dados: PlanoTratamentoUpdate, db: Session = Depends(get_db)):
+    """Edita procedimentos e status. O orçamento e as parcelas não mudam aqui."""
+    plano = obter_plano_ou_404(plano_id, db)
+    for campo, valor in dados.model_dump(exclude_none=True).items():
+        setattr(plano, campo, valor)
+    db.commit()
+    db.refresh(plano)
+    return plano
