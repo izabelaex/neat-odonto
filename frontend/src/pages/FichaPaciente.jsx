@@ -86,6 +86,9 @@ export default function FichaPaciente() {
           <Link to="/pacientes">
             <Botao variante="secundaria">Voltar</Botao>
           </Link>
+          <Link to={`/pacientes/${id}/tratamento`}>
+            <Botao variante="secundaria">Plano de tratamento</Botao>
+          </Link>
           <Link to={`/pacientes/${id}/editar`}>
             <Botao>Editar</Botao>
           </Link>
