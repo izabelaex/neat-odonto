@@ -47,3 +47,18 @@ def criar_plano(paciente_id: int, dados: PlanoTratamentoCreate, db: Session = De
     db.commit()
     db.refresh(plano)
     return plano
+
+
+@router.get(
+    "/pacientes/{paciente_id}/planos-tratamento", response_model=list[PlanoTratamentoOut]
+)
+def listar_planos(paciente_id: int, db: Session = Depends(get_db)):
+    """Planos do paciente, do mais recente para o mais antigo."""
+    if not db.get(Paciente, paciente_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente não encontrado")
+    return (
+        db.query(PlanoTratamento)
+        .filter(PlanoTratamento.paciente_id == paciente_id)
+        .order_by(PlanoTratamento.criado_em.desc(), PlanoTratamento.id.desc())
+        .all()
+    )
