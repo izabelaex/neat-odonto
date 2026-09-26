@@ -28,6 +28,10 @@ export default function PlanosTratamento() {
   const [erro, setErro] = useState(null)
   const [criando, setCriando] = useState(false)
 
+  function substituirPlano(atualizado) {
+    setPlanos((atuais) => atuais.map((p) => (p.id === atualizado.id ? atualizado : p)))
+  }
+
   useEffect(() => {
     Promise.all([obterPaciente(id), listarPlanos(id)])
       .then(([dadosPaciente, dadosPlanos]) => {
@@ -92,13 +96,8 @@ export default function PlanosTratamento() {
             {formatarReais(plano.valor_pago_centavos)} ({plano.parcelas_pagas} de{' '}
             {plano.parcelas.length} parcelas)
           </p>
-          <ParcelasPlano
-            parcelas={plano.parcelas}
-            onAtualizado={(atualizado) =>
-              setPlanos((atuais) => atuais.map((p) => (p.id === atualizado.id ? atualizado : p)))
-            }
-          />
-          <HistoricoPagamentos parcelas={plano.parcelas} />
+          <ParcelasPlano parcelas={plano.parcelas} onAtualizado={substituirPlano} />
+          <HistoricoPagamentos parcelas={plano.parcelas} onAtualizado={substituirPlano} />
         </Cartao>
       ))}
     </main>

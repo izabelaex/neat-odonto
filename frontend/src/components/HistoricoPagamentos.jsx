@@ -1,4 +1,5 @@
 import { formatarReais } from '../utils/dinheiro'
+import RemoverPagamento from './RemoverPagamento'
 import { rotuloFormaPagamento } from './SelecaoFormaPagamento'
 
 /** "2026-09-25" -> "25/09/2026" */
@@ -10,7 +11,7 @@ function formatarData(dataIso) {
  * Todos os pagamentos recebidos no plano, do mais recente para o mais antigo,
  * com a parcela a que cada um se refere.
  */
-export default function HistoricoPagamentos({ parcelas }) {
+export default function HistoricoPagamentos({ parcelas, onAtualizado }) {
   const pagamentos = parcelas
     .flatMap((parcela) => parcela.pagamentos.map((pagamento) => ({ ...pagamento, parcela })))
     .sort((a, b) => b.data_pagamento.localeCompare(a.data_pagamento) || b.id - a.id)
@@ -21,18 +22,21 @@ export default function HistoricoPagamentos({ parcelas }) {
       {pagamentos.length === 0 ? (
         <p className="text-sm text-tintaSuave">Nenhum pagamento registrado ainda.</p>
       ) : (
-        <ul className="space-y-1 text-sm">
+        <ul className="space-y-2 text-sm">
           {pagamentos.map((pagamento) => (
-            <li key={pagamento.id} className="flex flex-wrap gap-x-2 text-tinta">
-              <span>{formatarData(pagamento.data_pagamento)}</span>
-              <span className="text-tintaSuave">·</span>
-              <span>
-                Parcela {pagamento.parcela.numero}/{parcelas.length}
-              </span>
-              <span className="text-tintaSuave">·</span>
-              <span className="font-medium">{formatarReais(pagamento.valor_centavos)}</span>
-              <span className="text-tintaSuave">·</span>
-              <span>{rotuloFormaPagamento(pagamento.forma)}</span>
+            <li key={pagamento.id} className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-x-2 text-tinta">
+                <span>{formatarData(pagamento.data_pagamento)}</span>
+                <span className="text-tintaSuave">·</span>
+                <span>
+                  Parcela {pagamento.parcela.numero}/{parcelas.length}
+                </span>
+                <span className="text-tintaSuave">·</span>
+                <span className="font-medium">{formatarReais(pagamento.valor_centavos)}</span>
+                <span className="text-tintaSuave">·</span>
+                <span>{rotuloFormaPagamento(pagamento.forma)}</span>
+              </div>
+              <RemoverPagamento pagamento={pagamento} onRemovido={onAtualizado} />
             </li>
           ))}
         </ul>
