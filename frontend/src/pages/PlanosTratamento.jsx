@@ -88,7 +88,7 @@ export default function PlanosTratamento() {
               <span className="text-tintaSuave">Orçamento: </span>
               {formatarReais(plano.valor_total_centavos)}
             </p>
-            {plano.valor_pago_centavos === 0 && planoEditando !== plano.id && (
+            {planoEditando !== plano.id && (
               <Botao variante="secundaria" onClick={() => setPlanoEditando(plano.id)}>
                 Alterar orçamento
               </Botao>
