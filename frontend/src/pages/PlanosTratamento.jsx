@@ -5,6 +5,7 @@ import { listarPlanos } from '../api/tratamento'
 import Botao from '../components/Botao'
 import Cartao from '../components/Cartao'
 import FormularioPlano from '../components/FormularioPlano'
+import ParcelasPlano from '../components/ParcelasPlano'
 import { formatarReais } from '../utils/dinheiro'
 
 const ROTULOS_STATUS = {
@@ -90,6 +91,7 @@ export default function PlanosTratamento() {
             {formatarReais(plano.valor_pago_centavos)} ({plano.parcelas_pagas} de{' '}
             {plano.parcelas.length} parcelas)
           </p>
+          <ParcelasPlano parcelas={plano.parcelas} />
         </Cartao>
       ))}
     </main>
