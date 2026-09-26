@@ -91,7 +91,12 @@ export default function PlanosTratamento() {
             {formatarReais(plano.valor_pago_centavos)} ({plano.parcelas_pagas} de{' '}
             {plano.parcelas.length} parcelas)
           </p>
-          <ParcelasPlano parcelas={plano.parcelas} />
+          <ParcelasPlano
+            parcelas={plano.parcelas}
+            onAtualizado={(atualizado) =>
+              setPlanos((atuais) => atuais.map((p) => (p.id === atualizado.id ? atualizado : p)))
+            }
+          />
         </Cartao>
       ))}
     </main>
