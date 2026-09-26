@@ -7,6 +7,8 @@ import Agenda from './pages/Agenda'
 import ListaPacientes from './pages/ListaPacientes'
 import FormularioPaciente from './pages/FormularioPaciente'
 import FichaPaciente from './pages/FichaPaciente'
+import Consultas from './pages/Consultas'
+import FormularioConsulta from './pages/FormularioConsulta'
 
 /**
  * Arvore de rotas do sistema.
@@ -26,6 +28,9 @@ export default function App() {
       <Route path="/pacientes/:id" element={<FichaPaciente />} />
       <Route path="/pacientes/:id/editar" element={<FormularioPaciente />} />
       <Route path="/agenda" element={<Agenda />} />
+      <Route path="/consultas" element={<Consultas />} />
+      <Route path="/consultas/nova" element={<FormularioConsulta />} />
+      <Route path="/consultas/:id/editar" element={<FormularioConsulta />} />
       </Route></Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes></AuthProvider>
