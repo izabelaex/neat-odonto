@@ -5,6 +5,7 @@ import { listarPlanos } from '../api/tratamento'
 import Botao from '../components/Botao'
 import Cartao from '../components/Cartao'
 import FormularioPlano from '../components/FormularioPlano'
+import HistoricoPagamentos from '../components/HistoricoPagamentos'
 import ParcelasPlano from '../components/ParcelasPlano'
 import { formatarReais } from '../utils/dinheiro'
 
@@ -97,6 +98,7 @@ export default function PlanosTratamento() {
               setPlanos((atuais) => atuais.map((p) => (p.id === atualizado.id ? atualizado : p)))
             }
           />
+          <HistoricoPagamentos parcelas={plano.parcelas} />
         </Cartao>
       ))}
     </main>
