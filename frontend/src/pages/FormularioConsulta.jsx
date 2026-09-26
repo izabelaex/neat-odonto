@@ -132,5 +132,62 @@ export default function FormularioConsulta() {
     }
   }
 
-  return null
+  if (carregando) return <p className="mx-auto max-w-2xl px-6 py-10">Carregando...</p>
+  if ((editando || eventId) && erro && !data) return <p role="alert" className="mx-auto max-w-2xl px-6 py-10 text-alerta">{erro}</p>
+
+  return (
+    <main className="mx-auto max-w-2xl px-6 py-10">
+      <h1 className="mb-6 text-2xl font-semibold">{editando ? 'Editar consulta' : eventId ? 'Registrar consulta agendada' : 'Nova consulta'}</h1>
+      <Cartao as="form" onSubmit={salvar} className="space-y-5">
+        {agendamento && <p className="rounded-md bg-superficie p-3 text-sm">
+          Agendamento: <strong>{agendamento.title}</strong>. Ele continuará no Google Calendar após o registro.
+        </p>}
+        <section className="space-y-2">
+          <h2 className="font-semibold">Paciente</h2>
+          {paciente && <p>Selecionado: <strong>{paciente.nome}</strong></p>}
+          <Campo rotulo="Buscar e selecionar paciente (obrigatório)" value={termo} onChange={(e) => setTermo(e.target.value)} placeholder="Digite o nome ou CPF e escolha um resultado" />
+          {erroBusca && <p role="alert" className="text-alerta">{erroBusca}</p>}
+          {termo.trim() && !buscandoPaciente && !erroBusca && resultados.length === 0 && <p className="text-sm text-tintaSuave">Nenhum paciente encontrado.</p>}
+          {termo.trim() && resultados.length > 0 && (
+            <ul className="rounded-md border border-borda">
+              {resultados.map((item) => (
+                <li key={item.id}>
+                  <button type="button" className="w-full px-3 py-2 text-left hover:bg-superficie" onClick={() => { setPaciente(item); setTermo(''); setResultados([]) }}>
+                    {item.nome}{item.telefone ? ` — ${item.telefone}` : ''}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <Campo rotulo="Data da consulta" type="date" value={data} onChange={(e) => setData(e.target.value)} required />
+        <Campo rotulo="Procedimentos realizados" as="textarea" rows={4} value={procedimentos} onChange={(e) => setProcedimentos(e.target.value)} required />
+        <Campo rotulo="Observações (opcional)" as="textarea" rows={3} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
+
+        <section className="space-y-3 border-t border-borda pt-5">
+          <h2 className="text-lg font-semibold">Esterilização</h2>
+          <p className="text-sm text-tintaSuave">Informe ciclo, data, responsável e identificação do pacote por texto ou foto.</p>
+          <Campo rotulo="Identificação do pacote ou lote" value={esterilizacao.identificacao_pacote} onChange={(e) => alterarEsterilizacao('identificacao_pacote', e.target.value)} />
+          {fotoExistente && !removerFoto && <a className="text-principal underline" href={urlFotoEsterilizacao(id)} target="_blank" rel="noreferrer">Ver foto atual</a>}
+          {fotoExistente && (
+            <label className="block text-sm"><input type="checkbox" checked={removerFoto} onChange={(e) => { setRemoverFoto(e.target.checked); if (e.target.checked) setFoto(null) }} /> Remover foto atual</label>
+          )}
+          <label className="block text-sm font-medium text-tintaSuave">
+            Foto do pacote
+            <input type="file" accept="image/jpeg,image/png,image/webp" disabled={removerFoto} onChange={(e) => setFoto(e.target.files[0] || null)} className="mt-1 block w-full text-sm" />
+          </label>
+          <Campo rotulo="Ciclo" value={esterilizacao.ciclo} onChange={(e) => alterarEsterilizacao('ciclo', e.target.value)} required maxLength={60} />
+          <Campo rotulo="Data do ciclo" type="date" value={esterilizacao.data_ciclo} onChange={(e) => alterarEsterilizacao('data_ciclo', e.target.value)} required />
+          <Campo rotulo="Responsável pela esterilização" value={esterilizacao.responsavel} onChange={(e) => alterarEsterilizacao('responsavel', e.target.value)} required maxLength={120} />
+        </section>
+
+        {erro && <p role="alert" className="text-alerta">{erro}</p>}
+        <div className="flex justify-end gap-3">
+          <Botao type="button" variante="secundaria" onClick={() => navigate('/consultas')}>Cancelar</Botao>
+          <Botao type="submit" disabled={salvando}>{salvando ? 'Salvando...' : 'Salvar consulta'}</Botao>
+        </div>
+      </Cartao>
+    </main>
+  )
 }
