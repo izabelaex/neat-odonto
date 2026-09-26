@@ -100,18 +100,29 @@ def atualizar_plano(plano_id: int, dados: PlanoTratamentoUpdate, db: Session = D
 
 @router.put("/planos-tratamento/{plano_id}/orcamento", response_model=PlanoTratamentoOut)
 def alterar_orcamento(plano_id: int, dados: OrcamentoPlano, db: Session = Depends(get_db)):
-    """Refaz o orçamento e as parcelas do plano.
+    """Altera o orçamento, inclusive no meio do tratamento.
 
-    Só é permitido enquanto nenhum pagamento foi registrado: redistribuir dinheiro
-    que já entrou entre parcelas novas é uma decisão da dentista, não do sistema.
+    Parcelas que já têm pagamento ficam como estão (o histórico não se perde).
+    Só as parcelas sem pagamento são refeitas: o novo total, menos o valor das
+    parcelas mantidas, é dividido em `numero_parcelas` parcelas novas.
     """
     plano = obter_plano_ou_404(plano_id, db)
-    if any(parcela.pagamentos for parcela in plano.parcelas):
+    mantidas = [parcela for parcela in plano.parcelas if parcela.pagamentos]
+    restante = dados.valor_total_centavos - sum(p.valor_centavos for p in mantidas)
+    if restante < 0:
         raise HTTPException(
-            status.HTTP_409_CONFLICT, "Remova os pagamentos antes de alterar o orçamento"
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "O novo orçamento é menor que o valor das parcelas que já têm pagamento",
         )
+    novas = []
+    if restante > 0:
+        novas = gerar_parcelas(
+            OrcamentoPlano(valor_total_centavos=restante, numero_parcelas=dados.numero_parcelas)
+        )
+    for numero, parcela in enumerate(mantidas + novas, start=1):
+        parcela.numero = numero
     plano.valor_total_centavos = dados.valor_total_centavos
-    plano.parcelas = gerar_parcelas(dados)
+    plano.parcelas = mantidas + novas
     db.commit()
     db.refresh(plano)
     return plano
