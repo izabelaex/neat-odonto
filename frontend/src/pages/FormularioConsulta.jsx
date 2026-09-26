@@ -94,5 +94,43 @@ export default function FormularioConsulta() {
     setEsterilizacao((atual) => ({ ...atual, [campo]: valor }))
   }
 
+  async function salvar(evento) {
+    evento.preventDefault()
+    if (!paciente) {
+      setErro('Selecione o paciente na lista de resultados.')
+      return
+    }
+    if (!esterilizacao.identificacao_pacote.trim() && !foto && !(fotoExistente && !removerFoto)) {
+      setErro('Identifique o pacote por texto ou foto.')
+      return
+    }
+    setSalvando(true)
+    setErro('')
+    const form = new FormData()
+    form.append('data', data)
+    form.append('procedimentos_realizados', procedimentos)
+    form.append('observacoes', observacoes)
+    Object.entries(esterilizacao).forEach(([campo, valor]) => {
+      if (valor) form.append(campo, valor)
+    })
+    if (foto) form.append('foto_pacote', foto)
+    if (removerFoto) form.append('remover_foto', 'true')
+    if (editando) form.append('paciente_id', String(paciente.id))
+    if (eventId) form.append('google_event_id', eventId)
+
+    try {
+      if (editando) await atualizarConsulta(id, form)
+      else await criarConsulta(paciente.id, form)
+      const aviso = eventId
+        ? 'Consulta registrada. O agendamento saiu desta agenda e permanece no Google Calendar.'
+        : 'Consulta e esterilização salvas.'
+      navigate('/consultas', { state: { aviso } })
+    } catch (falha) {
+      setErro(typeof falha.response?.data?.detail === 'string'
+        ? falha.response.data.detail : 'Não foi possível salvar a consulta.')
+      setSalvando(false)
+    }
+  }
+
   return null
 }
