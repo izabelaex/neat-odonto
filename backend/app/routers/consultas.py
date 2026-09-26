@@ -78,3 +78,27 @@ def consultas_do_paciente(
 @router.get("/consultas/{consulta_id}", response_model=ConsultaOut)
 def obter_consulta(consulta_id: int, db: Session = Depends(get_db)):
     return _saida(_consulta(db, consulta_id))
+
+
+def formulario_consulta(
+    data: date = Form(...),
+    procedimentos_realizados: str = Form(...),
+    observacoes: str | None = Form(None),
+    identificacao_pacote: str | None = Form(None),
+    foto_pacote: UploadFile | None = File(None),
+    ciclo: str = Form(..., max_length=60),
+    data_ciclo: date = Form(...),
+    responsavel: str = Form(..., max_length=120),
+    remover_foto: bool = Form(False),
+):
+    return {
+        "data": data,
+        "procedimentos_realizados": procedimentos_realizados,
+        "observacoes": observacoes,
+        "identificacao_pacote": identificacao_pacote,
+        "foto_pacote": foto_pacote,
+        "ciclo": ciclo,
+        "data_ciclo": data_ciclo,
+        "responsavel": responsavel,
+        "remover_foto": remover_foto,
+    }
