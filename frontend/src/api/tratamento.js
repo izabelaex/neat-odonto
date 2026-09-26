@@ -19,6 +19,11 @@ export function atualizarPlano(planoId, dados) {
   return client.put(`/planos-tratamento/${planoId}`, dados).then((r) => r.data)
 }
 
+/** Refaz orcamento e parcelas. A API recusa se o plano ja tiver pagamentos. */
+export function alterarOrcamento(planoId, dados) {
+  return client.put(`/planos-tratamento/${planoId}/orcamento`, dados).then((r) => r.data)
+}
+
 export function removerPlano(planoId) {
   return client.delete(`/planos-tratamento/${planoId}`)
 }
