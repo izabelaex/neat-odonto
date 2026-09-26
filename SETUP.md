@@ -46,13 +46,27 @@ Para desfazer a última migration: `alembic downgrade -1`
 ## Agenda do Google
 
 A integração usa login Google e Calendar API, conforme aprovado pela PO.
-No Google Cloud, habilite a Calendar API e crie um cliente OAuth do tipo Web.
-Configure o consentimento com `openid`, `email`, `profile` e
-`https://www.googleapis.com/auth/calendar.events.owned`; em Testing, inclua a conta de teste.
-Cadastre a URI de retorno `http://localhost:8000/auth/google/callback`.
-Preencha Client ID, Client Secret e ALLOWED_GOOGLE_EMAIL no `backend/.env`,
-usando `backend/.env.example` como referência. Não versione credenciais.
+Para usar sua própria conta, crie um projeto no Google Cloud, habilite a Google
+Calendar API e configure a tela de consentimento OAuth. Em modo Testing, adicione
+**seu e-mail** como usuário de teste. Use os escopos `openid`, `email`, `profile` e
+`https://www.googleapis.com/auth/calendar.events.owned`.
+
+Crie um cliente OAuth do tipo **Aplicativo da Web** com a URI de redirecionamento
+autorizada `http://localhost:8000/auth/google/callback`. No `backend/.env`, preencha
+`GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` desse cliente e coloque o mesmo e-mail
+de teste em `ALLOWED_GOOGLE_EMAIL`. Cada instalação local autoriza uma conta por vez;
+trocar somente o usuário de teste no Google Cloud não altera a conta autorizada pela API.
+Não versione nem envie credenciais para o grupo.
 Gere SECRET_KEY e GOOGLE_TOKEN_KEY, respectivamente, na pasta `backend`:
+
+No Linux/macOS:
+
+```bash
+.venv/bin/python -c "import secrets; print(secrets.token_urlsafe(48))"
+.venv/bin/python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+No PowerShell:
 
 ```powershell
 .\.venv\Scripts\python.exe -c "import secrets; print(secrets.token_urlsafe(48))"
@@ -63,6 +77,11 @@ Preserve chaves já configuradas. Para produção, use HTTPS e COOKIE_SECURE=tru
 Reinstale `backend/requirements.txt` e rode `alembic upgrade head` após atualizar a branch.
 Abra sempre `http://localhost:5173`, sem alternar com `127.0.0.1`, por causa dos cookies.
 Rotas de pacientes e documentos agora exigem sessão; não existe bypass de desenvolvimento.
+Se o botão de login estiver desabilitado, confira `http://localhost:8000/auth/status`:
+`configured` deve ser `true`. Após entrar, autorize a agenda separadamente; então
+`calendar_configured` também deve ser `true` para a conexão funcionar.
+Se o Alembic reclamar de uma revisão desconhecida, preserve o banco antes de
+qualquer migração: ele pode conter dados de pacientes e precisar de conversão.
 
 No PowerShell, dentro de `backend`, use Python 3.11 explicitamente:
 
