@@ -7,13 +7,8 @@ import Cartao from '../components/Cartao'
 import FormularioPlano from '../components/FormularioPlano'
 import HistoricoPagamentos from '../components/HistoricoPagamentos'
 import ParcelasPlano from '../components/ParcelasPlano'
+import StatusPlano from '../components/StatusPlano'
 import { formatarReais } from '../utils/dinheiro'
-
-const ROTULOS_STATUS = {
-  em_andamento: 'Em andamento',
-  concluido: 'Concluído',
-  cancelado: 'Cancelado',
-}
 
 /**
  * Planos de tratamento do paciente, com orcamento e parcelas (historia 8).
@@ -83,9 +78,7 @@ export default function PlanosTratamento() {
         <Cartao key={plano.id} className="space-y-2">
           <div className="flex items-start justify-between gap-4">
             <p className="whitespace-pre-line text-tinta">{plano.procedimentos}</p>
-            <span className="shrink-0 text-sm text-tintaSuave">
-              {ROTULOS_STATUS[plano.status]}
-            </span>
+            <StatusPlano plano={plano} onAtualizado={substituirPlano} />
           </div>
           <p>
             <span className="text-tintaSuave">Orçamento: </span>
