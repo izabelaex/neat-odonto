@@ -7,6 +7,7 @@ export function listEvents(start, end, pageToken) {
 }
 
 export const createEvent = (draft) => client.post('/agenda/eventos', draft).then((r) => r.data)
+export const getEvent = (id) => client.get(`/agenda/eventos/${encodeURIComponent(id)}`).then((r) => r.data)
 export const deleteEvent = (id) => client.delete(`/agenda/eventos/${encodeURIComponent(id)}`)
 
 export function errorMessage(error, fallback) {
