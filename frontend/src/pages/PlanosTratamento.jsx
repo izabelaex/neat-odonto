@@ -7,6 +7,7 @@ import Cartao from '../components/Cartao'
 import FormularioPlano from '../components/FormularioPlano'
 import HistoricoPagamentos from '../components/HistoricoPagamentos'
 import ParcelasPlano from '../components/ParcelasPlano'
+import RemoverPlano from '../components/RemoverPlano'
 import StatusPlano from '../components/StatusPlano'
 import { formatarReais } from '../utils/dinheiro'
 
@@ -91,6 +92,10 @@ export default function PlanosTratamento() {
           </p>
           <ParcelasPlano parcelas={plano.parcelas} onAtualizado={substituirPlano} />
           <HistoricoPagamentos parcelas={plano.parcelas} onAtualizado={substituirPlano} />
+          <RemoverPlano
+            plano={plano}
+            onRemovido={(planoId) => setPlanos((atuais) => atuais.filter((p) => p.id !== planoId))}
+          />
         </Cartao>
       ))}
     </main>
