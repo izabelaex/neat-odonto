@@ -166,3 +166,37 @@ def _gravar(db: Session, consulta: Consulta, paciente_id: int, dados: dict) -> C
     if apagar_foto:
         apagar_foto.unlink(missing_ok=True)
     return _saida(_consulta(db, consulta.id))
+
+
+@router.post(
+    "/pacientes/{paciente_id}/consultas",
+    response_model=ConsultaOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def criar_consulta(
+    paciente_id: int,
+    google_event_id: str | None = Form(None, max_length=1024, pattern=r"^[A-Za-z0-9_-]+$"),
+    dados: dict = Depends(formulario_consulta), db: Session = Depends(get_db),
+):
+    return _gravar(db, Consulta(google_event_id=google_event_id), paciente_id, dados)
+
+
+@router.put("/consultas/{consulta_id}", response_model=ConsultaOut)
+def atualizar_consulta(
+    consulta_id: int,
+    paciente_id: int = Form(...),
+    dados: dict = Depends(formulario_consulta),
+    db: Session = Depends(get_db),
+):
+    return _gravar(db, _consulta(db, consulta_id), paciente_id, dados)
+
+
+@router.get("/consultas/{consulta_id}/esterilizacao/foto")
+def foto_esterilizacao(consulta_id: int, db: Session = Depends(get_db)):
+    registro = next(iter(_consulta(db, consulta_id).registros_esterilizacao), None)
+    if not registro or not registro.foto_pacote_caminho:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Foto não encontrada")
+    caminho = Path(registro.foto_pacote_caminho)
+    if not caminho.is_file():
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Foto não encontrada")
+    return FileResponse(caminho)
