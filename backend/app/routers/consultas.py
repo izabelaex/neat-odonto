@@ -102,3 +102,67 @@ def formulario_consulta(
         "responsavel": responsavel,
         "remover_foto": remover_foto,
     }
+
+
+def _gravar(db: Session, consulta: Consulta, paciente_id: int, dados: dict) -> ConsultaOut:
+    if not db.get(Paciente, paciente_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente não encontrado")
+    procedimentos = dados["procedimentos_realizados"].strip()
+    foto = dados["foto_pacote"]
+    if foto and dados["remover_foto"]:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Escolha entre trocar ou remover a foto")
+    if foto and foto.content_type not in TIPOS_FOTO:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Use uma foto JPG, PNG ou WebP")
+    registro = next(iter(consulta.registros_esterilizacao), None)
+    identificacao = (dados["identificacao_pacote"] or "").strip() or None
+    ciclo = dados["ciclo"].strip()
+    responsavel = dados["responsavel"].strip()
+    foto_anterior = registro.foto_pacote_caminho if registro else None
+    if not procedimentos or not ciclo or not responsavel:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Complete os procedimentos e a esterilização")
+    if not (identificacao or foto or (foto_anterior and not dados["remover_foto"])):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Identifique o pacote por texto ou foto")
+
+    consulta.paciente_id = paciente_id
+    consulta.data = dados["data"]
+    consulta.procedimentos_realizados = procedimentos
+    consulta.observacoes = (dados["observacoes"] or "").strip() or None
+    db.add(consulta)
+    nova_foto = None
+    apagar_foto = None
+    try:
+        db.flush()
+        if foto:
+            pasta = Path(settings.upload_dir) / "consultas" / str(consulta.id)
+            pasta.mkdir(parents=True, exist_ok=True)
+            nova_foto = pasta / f"{uuid.uuid4().hex}{TIPOS_FOTO[foto.content_type]}"
+            with nova_foto.open("wb") as destino:
+                while trecho := foto.file.read(1024 * 1024):
+                    destino.write(trecho)
+        if not registro:
+            registro = RegistroEsterilizacao(consulta_id=consulta.id)
+            db.add(registro)
+        registro.identificacao_pacote = identificacao
+        registro.foto_pacote_caminho = str(nova_foto) if nova_foto else (
+            None if dados["remover_foto"] else foto_anterior
+        )
+        registro.ciclo = ciclo
+        registro.data_ciclo = dados["data_ciclo"]
+        registro.responsavel = responsavel
+        if foto_anterior and (nova_foto or dados["remover_foto"]):
+            apagar_foto = Path(foto_anterior)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        if nova_foto:
+            nova_foto.unlink(missing_ok=True)
+        raise HTTPException(status.HTTP_409_CONFLICT, "Agendamento já registrado como consulta")
+    except Exception:
+        db.rollback()
+        if nova_foto:
+            nova_foto.unlink(missing_ok=True)
+        raise
+
+    if apagar_foto:
+        apagar_foto.unlink(missing_ok=True)
+    return _saida(_consulta(db, consulta.id))
