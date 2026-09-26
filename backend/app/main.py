@@ -37,8 +37,9 @@ def saude():
 
 
 # Registre os routers de cada área abaixo, um por linha:
-from app.routers import auth, calendar, pacientes
+from app.routers import auth, calendar, pacientes, tratamento
 
 app.include_router(auth.router)
 app.include_router(calendar.router)
 app.include_router(pacientes.router, dependencies=[Depends(get_current_user)])
+app.include_router(tratamento.router, dependencies=[Depends(get_current_user)])
