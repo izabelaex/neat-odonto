@@ -4,6 +4,7 @@ import { obterPaciente } from '../api/pacientes'
 import { listarPlanos } from '../api/tratamento'
 import Botao from '../components/Botao'
 import Cartao from '../components/Cartao'
+import FormularioOrcamento from '../components/FormularioOrcamento'
 import FormularioPlano from '../components/FormularioPlano'
 import HistoricoPagamentos from '../components/HistoricoPagamentos'
 import ParcelasPlano from '../components/ParcelasPlano'
@@ -23,6 +24,7 @@ export default function PlanosTratamento() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
   const [criando, setCriando] = useState(false)
+  const [planoEditando, setPlanoEditando] = useState(null)
 
   function substituirPlano(atualizado) {
     setPlanos((atuais) => atuais.map((p) => (p.id === atualizado.id ? atualizado : p)))
@@ -81,10 +83,27 @@ export default function PlanosTratamento() {
             <p className="whitespace-pre-line text-tinta">{plano.procedimentos}</p>
             <StatusPlano plano={plano} onAtualizado={substituirPlano} />
           </div>
-          <p>
-            <span className="text-tintaSuave">Orçamento: </span>
-            {formatarReais(plano.valor_total_centavos)}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p>
+              <span className="text-tintaSuave">Orçamento: </span>
+              {formatarReais(plano.valor_total_centavos)}
+            </p>
+            {plano.valor_pago_centavos === 0 && planoEditando !== plano.id && (
+              <Botao variante="secundaria" onClick={() => setPlanoEditando(plano.id)}>
+                Alterar orçamento
+              </Botao>
+            )}
+          </div>
+          {planoEditando === plano.id && (
+            <FormularioOrcamento
+              plano={plano}
+              onCancelar={() => setPlanoEditando(null)}
+              onAlterado={(atualizado) => {
+                substituirPlano(atualizado)
+                setPlanoEditando(null)
+              }}
+            />
+          )}
           <p>
             <span className="text-tintaSuave">Pago: </span>
             {formatarReais(plano.valor_pago_centavos)} ({plano.parcelas_pagas} de{' '}
