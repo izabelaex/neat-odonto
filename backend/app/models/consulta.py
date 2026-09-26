@@ -33,6 +33,7 @@ class Consulta(Base):
     # Texto livre: a dentista não quer preencher catálogo fechado durante o atendimento.
     procedimentos_realizados: Mapped[str] = mapped_column(Text, nullable=False)
     observacoes: Mapped[str | None] = mapped_column(Text)
+    google_event_id: Mapped[str | None] = mapped_column(String(1024), unique=True, index=True)
     criado_em: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     paciente: Mapped["Paciente"] = relationship(back_populates="consultas")
