@@ -12,12 +12,17 @@ StatusPlano = Literal["em_andamento", "concluido", "cancelado"]
 FormaPagamento = Literal["dinheiro", "pix", "cartao", "transferencia", "outro"]
 
 
-class PlanoTratamentoCreate(BaseModel):
+class OrcamentoPlano(BaseModel):
+    """Orçamento total e em quantas parcelas foi combinado."""
+
+    valor_total_centavos: int = Field(gt=0)
+    numero_parcelas: int = Field(ge=1, le=48)
+
+
+class PlanoTratamentoCreate(OrcamentoPlano):
     """O plano nasce já com o orçamento dividido em parcelas combinadas."""
 
     procedimentos: str = Field(min_length=1)
-    valor_total_centavos: int = Field(gt=0)
-    numero_parcelas: int = Field(ge=1, le=48)
 
     @field_validator("procedimentos")
     @classmethod

@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models.paciente import Paciente
 from app.models.tratamento import Pagamento, Parcela, PlanoTratamento
 from app.schemas.tratamento import (
+    OrcamentoPlano,
     PagamentoCreate,
     PlanoTratamentoCreate,
     PlanoTratamentoOut,
@@ -25,6 +26,19 @@ def dividir_em_parcelas(total_centavos: int, numero_parcelas: int) -> list[int]:
     return [base + 1 if i < resto else base for i in range(numero_parcelas)]
 
 
+def gerar_parcelas(orcamento: OrcamentoPlano) -> list[Parcela]:
+    """Parcelas combinadas (ainda sem pagamento) para o orçamento informado."""
+    if orcamento.numero_parcelas > orcamento.valor_total_centavos:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, "Mais parcelas do que centavos no orçamento"
+        )
+    valores = dividir_em_parcelas(orcamento.valor_total_centavos, orcamento.numero_parcelas)
+    return [
+        Parcela(numero=numero, valor_centavos=valor)
+        for numero, valor in enumerate(valores, start=1)
+    ]
+
+
 @router.post(
     "/pacientes/{paciente_id}/planos-tratamento",
     response_model=PlanoTratamentoOut,
@@ -33,21 +47,13 @@ def dividir_em_parcelas(total_centavos: int, numero_parcelas: int) -> list[int]:
 def criar_plano(paciente_id: int, dados: PlanoTratamentoCreate, db: Session = Depends(get_db)):
     if not db.get(Paciente, paciente_id):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente não encontrado")
-    if dados.numero_parcelas > dados.valor_total_centavos:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY, "Mais parcelas do que centavos no orçamento"
-        )
 
     plano = PlanoTratamento(
         paciente_id=paciente_id,
         procedimentos=dados.procedimentos,
         valor_total_centavos=dados.valor_total_centavos,
     )
-    valores = dividir_em_parcelas(dados.valor_total_centavos, dados.numero_parcelas)
-    plano.parcelas = [
-        Parcela(numero=numero, valor_centavos=valor)
-        for numero, valor in enumerate(valores, start=1)
-    ]
+    plano.parcelas = gerar_parcelas(dados)
     db.add(plano)
     db.commit()
     db.refresh(plano)
@@ -87,6 +93,25 @@ def atualizar_plano(plano_id: int, dados: PlanoTratamentoUpdate, db: Session = D
     plano = obter_plano_ou_404(plano_id, db)
     for campo, valor in dados.model_dump(exclude_none=True).items():
         setattr(plano, campo, valor)
+    db.commit()
+    db.refresh(plano)
+    return plano
+
+
+@router.put("/planos-tratamento/{plano_id}/orcamento", response_model=PlanoTratamentoOut)
+def alterar_orcamento(plano_id: int, dados: OrcamentoPlano, db: Session = Depends(get_db)):
+    """Refaz o orçamento e as parcelas do plano.
+
+    Só é permitido enquanto nenhum pagamento foi registrado: redistribuir dinheiro
+    que já entrou entre parcelas novas é uma decisão da dentista, não do sistema.
+    """
+    plano = obter_plano_ou_404(plano_id, db)
+    if any(parcela.pagamentos for parcela in plano.parcelas):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "Remova os pagamentos antes de alterar o orçamento"
+        )
+    plano.valor_total_centavos = dados.valor_total_centavos
+    plano.parcelas = gerar_parcelas(dados)
     db.commit()
     db.refresh(plano)
     return plano
