@@ -9,6 +9,7 @@ import FormularioPaciente from './pages/FormularioPaciente'
 import FichaPaciente from './pages/FichaPaciente'
 import Consultas from './pages/Consultas'
 import FormularioConsulta from './pages/FormularioConsulta'
+import PlanosTratamento from './pages/PlanosTratamento'
 
 /**
  * Arvore de rotas do sistema.
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/pacientes/novo" element={<FormularioPaciente />} />
       <Route path="/pacientes/:id" element={<FichaPaciente />} />
       <Route path="/pacientes/:id/editar" element={<FormularioPaciente />} />
+      <Route path="/pacientes/:id/tratamento" element={<PlanosTratamento />} />
       <Route path="/agenda" element={<Agenda />} />
       <Route path="/consultas" element={<Consultas />} />
       <Route path="/consultas/nova" element={<FormularioConsulta />} />
