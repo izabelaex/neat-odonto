@@ -1,4 +1,5 @@
 """Credenciais Google nunca são enviadas para o navegador."""
+import re
 from urllib.parse import quote
 
 import httpx
@@ -64,4 +65,8 @@ async def calendar_request(method, token, event_id=None, **kwargs):
 def public_event(event):
     return {"id": event["id"], "title": event.get("summary", "Sem título"),
             "start": event.get("start", {}), "end": event.get("end", {}),
-            "status": event.get("status", "confirmed")}
+            "status": event.get("status", "confirmed"),
+            "can_register": bool(
+                (event.get("extendedProperties") or {}).get("private", {}).get("neat_odonto") == "appointment"
+                or re.fullmatch(r"[0-9a-f]{32}", event["id"])
+            )}

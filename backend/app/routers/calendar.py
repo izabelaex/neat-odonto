@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.sessions import get_current_user
 from app.database import get_db
+from app.models.consulta import Consulta
 from app.schemas.calendar import CalendarEventCreate
 from app.services.google_calendar import access_token, calendar_request, public_event
 
@@ -29,8 +30,11 @@ async def list_events(
         if page_token:
             params["pageToken"] = page_token
         data = await calendar_request("GET", token, params=params)
-        return {"items": [public_event(e) for e in data.get("items", [])
-                          if e.get("status") != "cancelled"],
+        items = [e for e in data.get("items", []) if e.get("status") != "cancelled"]
+        ids = [e["id"] for e in items]
+        completed = {row[0] for row in db.query(Consulta.google_event_id)
+                     .filter(Consulta.google_event_id.in_(ids)).all()} if ids else set()
+        return {"items": [public_event(e) for e in items if e["id"] not in completed],
                 "next_page_token": data.get("nextPageToken")}
     except (HTTPError, ValueError, KeyError):
         raise HTTPException(502, "O Google não respondeu. Tente novamente.")
@@ -45,10 +49,27 @@ async def create_event(draft: CalendarEventCreate, user=Depends(get_current_user
             "id": draft.request_id.hex, "summary": draft.title,
             "start": {"dateTime": draft.start.isoformat()},
             "end": {"dateTime": draft.end.isoformat()},
+            "extendedProperties": {"private": {"neat_odonto": "appointment"}},
         })
         return public_event(event)
     except (HTTPError, ValueError, KeyError):
         raise HTTPException(502, "Não foi possível confirmar o agendamento. Tente novamente.")
+
+
+@router.get("/eventos/{event_id}")
+async def get_event(
+    event_id: str = Path(min_length=1, max_length=1024, pattern=r"^[A-Za-z0-9_-]+$"),
+    user=Depends(get_current_user), db: Session = Depends(get_db),
+):
+    if db.query(Consulta.id).filter_by(google_event_id=event_id).first():
+        raise HTTPException(409, "Agendamento já registrado como consulta.")
+    try:
+        event = public_event(await calendar_request("GET", await access_token(user, db), event_id=event_id))
+    except (HTTPError, ValueError, KeyError):
+        raise HTTPException(502, "Não foi possível carregar o agendamento.")
+    if not event["can_register"] or event["status"] == "cancelled":
+        raise HTTPException(404, "Agendamento não criado no sistema.")
+    return event
 
 
 @router.delete("/eventos/{event_id}", status_code=204)

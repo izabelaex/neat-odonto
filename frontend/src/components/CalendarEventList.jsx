@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Cartao from './Cartao'
 import DeleteCalendarEvent from './DeleteCalendarEvent'
 
@@ -17,7 +18,13 @@ export default function CalendarEventList({ events, onDeleted }) {
         <h3 className="font-semibold">{event.title}</h3>
         <p className="text-sm text-tintaSuave">{eventTime(event.start)}
           {event.end.dateTime && ` até ${eventTime(event.end)}`}</p>
-        <DeleteCalendarEvent event={event} onDeleted={onDeleted} />
+        <div className="flex flex-wrap items-center gap-3 pt-3">
+          {event.can_register && <Link to={`/consultas/nova?agendamento=${encodeURIComponent(event.id)}`}
+            className="rounded-md bg-principal px-4 py-2 text-sm font-medium text-white">
+            Registrar consulta
+          </Link>}
+          <DeleteCalendarEvent event={event} onDeleted={onDeleted} />
+        </div>
       </Cartao>
     </li>)}
   </ul>
