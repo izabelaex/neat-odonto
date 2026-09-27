@@ -29,6 +29,10 @@ export function atualizarPaciente(id, dados) {
   return client.put(`/pacientes/${id}`, dados).then((r) => r.data)
 }
 
+export function removerPaciente(id) {
+  return client.delete(`/pacientes/${id}`)
+}
+
 export function adicionarDocumento(id, { tipo, descricao, arquivo }) {
   const form = new FormData()
   form.append('tipo', tipo)

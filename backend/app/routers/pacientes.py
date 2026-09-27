@@ -35,7 +35,7 @@ def criar_paciente(dados: PacienteCreate, db: Session = Depends(get_db)):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, "CPF já cadastrado para outro paciente")
+        raise HTTPException(status.HTTP_409_CONFLICT, "Já existe um paciente cadastrado com este CPF")
     db.refresh(paciente)
     return paciente
 
@@ -83,9 +83,22 @@ def atualizar_paciente(paciente_id: int, dados: PacienteUpdate, db: Session = De
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, "CPF já cadastrado para outro paciente")
+        raise HTTPException(status.HTTP_409_CONFLICT, "Já existe um paciente cadastrado com este CPF")
     db.refresh(paciente)
     return paciente
+
+
+@router.delete("/{paciente_id}", status_code=status.HTTP_204_NO_CONTENT)
+def excluir_paciente(paciente_id: int, db: Session = Depends(get_db)):
+    """Exclui o paciente e, em cascata, consultas, documentos e plano de tratamento."""
+    paciente = db.get(Paciente, paciente_id)
+    if not paciente:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Paciente não encontrado")
+    for documento in paciente.documentos:
+        if os.path.exists(documento.caminho_arquivo):
+            os.remove(documento.caminho_arquivo)
+    db.delete(paciente)
+    db.commit()
 
 
 @router.post(

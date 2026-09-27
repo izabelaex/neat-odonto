@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { buscarPacientes, listarPacientes } from '../api/pacientes'
+import { buscarPacientes, listarPacientes, removerPaciente } from '../api/pacientes'
 import Botao from '../components/Botao'
 import Cartao from '../components/Cartao'
 
@@ -31,6 +31,19 @@ export default function ListaPacientes() {
     return () => clearTimeout(idTimeout)
   }, [termo])
 
+  async function excluir(paciente) {
+    const confirmar = window.confirm(
+      `Excluir o paciente "${paciente.nome}"? Isso também remove documentos, consultas e plano de tratamento associados, e não pode ser desfeito.`,
+    )
+    if (!confirmar) return
+    try {
+      await removerPaciente(paciente.id)
+      setPacientes((atual) => atual.filter((p) => p.id !== paciente.id))
+    } catch {
+      setErro('Não foi possível excluir o paciente.')
+    }
+  }
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <div className="mb-6 flex items-center justify-between">
@@ -57,14 +70,17 @@ export default function ListaPacientes() {
       <ul className="space-y-3">
         {pacientes.map((paciente) => (
           <li key={paciente.id}>
-            <Link to={`/pacientes/${paciente.id}`}>
-              <Cartao className="transition-colors hover:border-principalClara">
+            <Cartao className="flex items-center justify-between gap-3">
+              <Link to={`/pacientes/${paciente.id}`} className="flex-1">
                 <p className="font-medium text-tinta">{paciente.nome}</p>
                 <p className="text-sm text-tintaSuave">
                   {paciente.telefone || 'Sem telefone cadastrado'}
                 </p>
-              </Cartao>
-            </Link>
+              </Link>
+              <Botao variante="perigo" type="button" onClick={() => excluir(paciente)}>
+                Excluir
+              </Botao>
+            </Cartao>
           </li>
         ))}
       </ul>
