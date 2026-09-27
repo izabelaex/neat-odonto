@@ -8,6 +8,22 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 TIPOS_DOCUMENTO = ("foto", "radiografia")
 
 
+def _cpf_valido(digitos: str) -> bool:
+    """Confere os dígitos verificadores do CPF (algoritmo padrão da Receita)."""
+    if len(digitos) != 11 or len(set(digitos)) == 1:
+        return False
+
+    def digito_verificador(parcial: str) -> str:
+        pesos = range(len(parcial) + 1, 1, -1)
+        soma = sum(int(d) * peso for d, peso in zip(parcial, pesos))
+        resto = (soma * 10) % 11
+        return str(resto) if resto < 10 else "0"
+
+    d1 = digito_verificador(digitos[:9])
+    d2 = digito_verificador(digitos[:9] + d1)
+    return digitos[-2:] == d1 + d2
+
+
 class PacienteBase(BaseModel):
     nome: str = Field(min_length=1, max_length=160)
     telefone: str | None = Field(default=None, max_length=20)
@@ -17,20 +33,22 @@ class PacienteBase(BaseModel):
 
     @field_validator("nome")
     @classmethod
-    def _nome_sem_espacos_nas_pontas(cls, valor: str) -> str:
+    def _validar_nome(cls, valor: str) -> str:
         valor = valor.strip()
         if not valor:
             raise ValueError("nome não pode ficar em branco")
+        if re.search(r"\d", valor):
+            raise ValueError("nome não pode conter números")
         return valor
 
     @field_validator("cpf")
     @classmethod
-    def _cpf_so_digitos(cls, valor: str | None) -> str | None:
+    def _validar_cpf(cls, valor: str | None) -> str | None:
         if not valor:
             return None
         digitos = re.sub(r"\D", "", valor)
-        if len(digitos) != 11:
-            raise ValueError("CPF deve ter 11 dígitos")
+        if not _cpf_valido(digitos):
+            raise ValueError("CPF inválido")
         return digitos
 
 
