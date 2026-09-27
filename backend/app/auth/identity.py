@@ -8,8 +8,8 @@ from app.models.usuario import Usuario
 def identify_user(claims, db):
     email = str(claims.get("email", "")).casefold()
     subject = claims.get("sub")
-    allowed = settings.allowed_google_email.strip().casefold()
-    if not allowed or email != allowed or claims.get("email_verified") is not True or not subject:
+    allowed = settings.allowed_google_accounts()
+    if email not in allowed or claims.get("email_verified") is not True or not subject:
         raise HTTPException(403, "Conta não autorizada.")
     user = db.query(Usuario).filter_by(google_subject=subject).first()
     if user is None:
