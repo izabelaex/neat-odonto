@@ -16,6 +16,7 @@ export default function CalendarEventList({ events, onDeleted }) {
     {events.map((event) => <li key={event.id}>
       <Cartao className="space-y-1">
         <h3 className="font-semibold">{event.title}</h3>
+        <p className="text-sm text-tintaSuave">Paciente: {event.patient_name || 'Não informado'}</p>
         <p className="text-sm text-tintaSuave">{eventTime(event.start)}
           {event.end.dateTime && ` até ${eventTime(event.end)}`}</p>
         <div className="flex flex-wrap items-center gap-3 pt-3">

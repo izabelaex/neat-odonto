@@ -18,7 +18,7 @@ export default function DeleteCalendarEvent({ event, onDeleted }) {
     } finally { setDeleting(false) }
   }
 
-  return <div className="space-y-2 pt-3">
+  return <div className="space-y-2">
     {confirming ? <div className="space-y-3 rounded-md border border-borda bg-superficie p-3">
       <p className="text-sm">Excluir “{event.title}” do Google Calendar?
         Esta ação remove este agendamento da agenda.</p>
