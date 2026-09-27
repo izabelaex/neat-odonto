@@ -14,10 +14,29 @@ function today() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
 
+function selectedPeriod(value, view) {
+  const [year, month, day] = value.split('-').map(Number)
+  const start = new Date(year, month - 1, day)
+  if (!Number.isFinite(start.getTime())) return null
+  if (view === 'week') start.setDate(start.getDate() - ((start.getDay() + 6) % 7))
+  const end = new Date(start)
+  end.setDate(end.getDate() + (view === 'week' ? 7 : 1))
+  return { start, end }
+}
+
+function periodDescription(period, view) {
+  const options = { day: '2-digit', month: '2-digit' }
+  if (view === 'day') return period.start.toLocaleDateString('pt-BR', options)
+  const lastDay = new Date(period.end)
+  lastDay.setDate(lastDay.getDate() - 1)
+  return `${period.start.toLocaleDateString('pt-BR', options)} a ${lastDay.toLocaleDateString('pt-BR', options)}`
+}
+
 export default function Agenda() {
   const { user } = useAuth()
   const [params] = useSearchParams()
   const [date, setDate] = useState(today)
+  const [view, setView] = useState('day')
   const [events, setEvents] = useState([])
   const [nextPage, setNextPage] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -29,11 +48,10 @@ export default function Agenda() {
     const current = ++version.current
     setError(''); setLoading(true)
     if (!pageToken) { setEvents([]); setNextPage(null) }
-    const start = new Date(`${date}T00:00:00`), end = new Date(start)
-    end.setDate(end.getDate() + 1)
-    if (!Number.isFinite(start.getTime())) { setLoading(false); return }
+    const period = selectedPeriod(date, view)
+    if (!period) { setLoading(false); return }
     try {
-      const data = await listEvents(start.toISOString(), end.toISOString(), pageToken)
+      const data = await listEvents(period.start.toISOString(), period.end.toISOString(), pageToken)
       if (version.current !== current) return
       setEvents((old) => pageToken ? [...old, ...data.items] : data.items)
       setNextPage(data.next_page_token)
@@ -47,7 +65,8 @@ export default function Agenda() {
   useEffect(() => {
     if (user.calendar_connected) load()
     return () => { version.current++ }
-  }, [date, user.calendar_connected])
+  }, [date, view, user.calendar_connected])
+  const period = selectedPeriod(date, view)
   return <main className="mx-auto max-w-6xl space-y-6 px-6 py-10">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h1 className="text-2xl font-semibold">Agenda</h1>
@@ -65,11 +84,16 @@ export default function Agenda() {
       <p className="text-tintaSuave">Autorize o Google Agenda para consultar seus horários e criar agendamentos aqui.</p>
       <p className="text-sm text-tintaSuave">Seus pacientes continuam disponíveis no menu Pacientes.</p>
     </Cartao> : <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-      <section className="space-y-4" aria-label="Agenda do dia">
+      <section className="space-y-4" aria-label={`Agenda ${view === 'week' ? 'da semana' : 'do dia'}`}>
         <div className="flex flex-wrap items-end gap-3">
-          <Campo rotulo="Dia" type="date" value={date} required onChange={(e) => { setDate(e.target.value); setNotice('') }} />
+          <Campo rotulo={view === 'week' ? 'Data de referência' : 'Dia'} type="date" value={date} required onChange={(e) => { setDate(e.target.value); setNotice('') }} />
+          <div className="flex gap-2" role="group" aria-label="Visualização da agenda">
+            <Botao type="button" variante={view === 'day' ? 'primaria' : 'secundaria'} onClick={() => setView('day')}>Dia</Botao>
+            <Botao type="button" variante={view === 'week' ? 'primaria' : 'secundaria'} onClick={() => setView('week')}>Semana</Botao>
+          </div>
           <Botao variante="secundaria" disabled={loading || !date} onClick={() => load()}>Atualizar</Botao>
         </div>
+        {period && <p className="text-sm text-tintaSuave">Exibindo: {periodDescription(period, view)}</p>}
         {loading && <p role="status" className="text-tintaSuave">Carregando agenda...</p>}
         {!loading && <CalendarEventList events={events} onDeleted={(id) => {
           setEvents((current) => current.filter((event) => event.id !== id))
@@ -78,7 +102,7 @@ export default function Agenda() {
         {nextPage && <Botao variante="secundaria" disabled={loading} onClick={() => load(nextPage)}>Carregar mais</Botao>}
       </section>
       <section aria-label="Criar agendamento"><CalendarEventForm onCreated={() => {
-        setNotice('Agendamento criado no Google. Se necessário, selecione o dia agendado para vê-lo.'); load()
+        setNotice('Agendamento criado no Google. Consulte o período selecionado para vê-lo.'); load()
       }} /></section>
     </div>}
   </main>
