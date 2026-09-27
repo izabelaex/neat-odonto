@@ -116,11 +116,11 @@ Não reabra estas decisões nem gere código que as contrarie.
 usuário. Multiusuário não está no escopo do TP1.
 
 **Login Google autorizado pela PO.** Izabela aprovou a implementação por Vitor nas US1/US2.
-OpenID Connect autentica a única conta configurada em `ALLOWED_GOOGLE_EMAIL`.
+OpenID Connect autentica as contas configuradas em `ALLOWED_GOOGLE_EMAILS`.
 Não implementar cadastro público ou login por senha. A sessão do sistema usa cookie HttpOnly.
 
 **Google Calendar API.** A dentista autoriza a agenda separadamente após entrar.
-O sistema lista, cria e exclui eventos em um calendário próprio da conta autorizada.
+O sistema lista, cria e exclui eventos no calendário próprio de cada conta autorizada.
 Credenciais ficam no backend; refresh token cifrado. Eventos não criam consultas clínicas.
 Configuração necessária para executar o projeto: `SETUP.md` e `backend/.env.example`.
 

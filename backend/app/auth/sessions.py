@@ -45,7 +45,7 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     if not session or session.expires_at <= utc_now():
         raise HTTPException(401, "Sua sessão expirou. Entre novamente.")
     user = db.get(Usuario, session.user_id)
-    if not user or user.email.casefold() != settings.allowed_google_email.strip().casefold():
+    if not user or user.email.casefold() not in settings.allowed_google_accounts():
         raise HTTPException(401, "Conta não autorizada.")
     if request.method not in {"GET", "HEAD", "OPTIONS"}:
         if request.headers.get("origin") != settings.frontend_url.rstrip("/"):

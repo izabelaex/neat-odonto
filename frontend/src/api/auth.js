@@ -11,7 +11,7 @@ export const loginErrors = {
   client_configuration: 'O Google recusou as credenciais do aplicativo. Confira o Client ID e o Client Secret.',
   invalid_code: 'O código de autorização expirou ou foi recusado. Inicie uma nova tentativa de login.',
   consent_denied: 'O acesso não foi autorizado no Google. Inicie novamente e confirme a permissão.',
-  account_denied: 'A conta retornada não foi autorizada. Use o e-mail configurado para o consultório.',
+  account_denied: 'A conta retornada não foi autorizada. Use um e-mail autorizado para o consultório.',
   invalid_identity: 'Não foi possível validar a identidade Google. Confira o relógio do computador e tente novamente.',
   google_connection: 'O servidor não conseguiu se comunicar com o Google. Tente novamente.',
   configuration: 'O login Google ainda não foi configurado.',

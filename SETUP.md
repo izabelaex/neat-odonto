@@ -53,9 +53,10 @@ Calendar API e configure a tela de consentimento OAuth. Em modo Testing, adicion
 
 Crie um cliente OAuth do tipo **Aplicativo da Web** com a URI de redirecionamento
 autorizada `http://localhost:8000/auth/google/callback`. No `backend/.env`, preencha
-`GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` desse cliente e coloque o mesmo e-mail
-de teste em `ALLOWED_GOOGLE_EMAIL`. Cada instalação local autoriza uma conta por vez;
-trocar somente o usuário de teste no Google Cloud não altera a conta autorizada pela API.
+`GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` desse cliente. Adicione cada e-mail do time como
+usuário de teste no Google Cloud e liste os mesmos e-mails em `ALLOWED_GOOGLE_EMAILS`, separados
+por vírgula. Cada conta autorizada usa o próprio calendário Google; trocar somente o usuário de
+teste no Google Cloud não libera acesso na API.
 Não versione nem envie credenciais para o grupo.
 Gere SECRET_KEY e GOOGLE_TOKEN_KEY, respectivamente, na pasta `backend`:
 

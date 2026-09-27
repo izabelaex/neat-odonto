@@ -25,7 +25,7 @@ export default function Login() {
     <p className="mb-8 mt-3 text-tintaSuave">Pacientes e agenda, organizados em um só lugar.</p>
     <Cartao className="space-y-5">
       <h2 className="text-lg font-semibold">Acesse sua conta</h2>
-      <p className="text-sm text-tintaSuave">Entre com a conta Google autorizada para o consultório.</p>
+      <p className="text-sm text-tintaSuave">Entre com uma conta Google autorizada para o consultório.</p>
       {params.get('error') && <p role="alert" className="text-alerta">
         {loginErrors[params.get('error')] || 'Não foi possível concluir o acesso. Tente novamente.'}
       </p>}

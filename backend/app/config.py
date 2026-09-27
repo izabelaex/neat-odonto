@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
     google_redirect_uri: str = "http://localhost:8000/auth/google/callback"
+    # Lista separada por vírgulas; a opção singular é mantida para instalações antigas.
+    allowed_google_emails: str = ""
     allowed_google_email: str = ""
     google_token_key: str = ""
     # Somente calendário de propriedade da conta autorizada.
@@ -28,6 +30,10 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+
+    def allowed_google_accounts(self):
+        emails = self.allowed_google_emails or self.allowed_google_email
+        return {email.strip().casefold() for email in emails.split(",") if email.strip()}
 
 
 @lru_cache

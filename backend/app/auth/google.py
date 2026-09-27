@@ -20,7 +20,7 @@ oauth.register(
 
 def login_configured():
     return bool(settings.google_client_id and settings.google_client_secret
-                and settings.allowed_google_email.strip() and len(settings.secret_key) >= 32
+                and settings.allowed_google_accounts() and len(settings.secret_key) >= 32
                 and settings.secret_key not in {"troque-esta-chave-em-producao",
                                                 "gere-uma-chave-aleatoria-aqui"})
 
