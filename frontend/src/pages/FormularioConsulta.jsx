@@ -67,7 +67,14 @@ export default function FormularioConsulta() {
     if (!eventId) return
     let ativo = true
     getEvent(eventId)
-      .then((evento) => { if (ativo) { setAgendamento(evento); setData(diaDoEvento(evento.start)) } })
+      .then((evento) => {
+        if (!ativo) return
+        setAgendamento(evento)
+        setData(diaDoEvento(evento.start))
+        if (evento.patient_id && evento.patient_name) {
+          setPaciente({ id: evento.patient_id, nome: evento.patient_name })
+        }
+      })
       .catch(() => { if (ativo) setErro('Não foi possível carregar este agendamento. Volte à agenda e tente novamente.') })
       .finally(() => { if (ativo) setCarregando(false) })
     return () => { ativo = false }
