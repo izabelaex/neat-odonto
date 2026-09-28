@@ -11,7 +11,11 @@ import CalendarEventList from '../components/CalendarEventList'
 
 function today() {
   const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  return dateValue(now)
+}
+
+function dateValue(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
 function selectedPeriod(value, view) {
@@ -20,16 +24,39 @@ function selectedPeriod(value, view) {
   if (!Number.isFinite(start.getTime())) return null
   if (view === 'week') start.setDate(start.getDate() - ((start.getDay() + 6) % 7))
   const end = new Date(start)
-  end.setDate(end.getDate() + (view === 'week' ? 7 : 1))
+  end.setDate(end.getDate() + (view === 'week' ? 5 : 1))
   return { start, end }
 }
 
 function periodDescription(period, view) {
-  const options = { day: '2-digit', month: '2-digit' }
-  if (view === 'day') return period.start.toLocaleDateString('pt-BR', options)
+  const options = { day: '2-digit', month: 'short' }
+  if (view === 'day') return period.start.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
   const lastDay = new Date(period.end)
   lastDay.setDate(lastDay.getDate() - 1)
-  return `${period.start.toLocaleDateString('pt-BR', options)} a ${lastDay.toLocaleDateString('pt-BR', options)}`
+  return `${period.start.toLocaleDateString('pt-BR', options)} – ${lastDay.toLocaleDateString('pt-BR', { ...options, year: 'numeric' })}`
+}
+
+function shiftDate(value, amount) {
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  date.setDate(date.getDate() + amount)
+  return dateValue(date)
+}
+
+function Arrow({ direction }) {
+  return <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+    {direction === 'left' ? <path d="m12.5 4.5-5.5 5.5 5.5 5.5" /> : <path d="m7.5 4.5 5.5 5.5-5.5 5.5" />}
+    <path d={direction === 'left' ? 'M7.5 10h9' : 'M3.5 10h9'} />
+  </svg>
+}
+
+function DateNavigation({ date, view, loading, onChange }) {
+  const step = view === 'week' ? 7 : 1
+  return <button type="button" aria-label={view === 'week' ? 'Próxima semana' : 'Próximo dia'}
+      className="rounded-full p-2 text-tintaSuave transition-colors hover:bg-superficie hover:text-tinta disabled:opacity-50"
+      disabled={loading || !date} onClick={() => onChange(shiftDate(date, step))}>
+    <Arrow direction="right" />
+  </button>
 }
 
 export default function Agenda() {
