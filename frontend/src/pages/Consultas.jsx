@@ -5,6 +5,7 @@ import { buscarPacientes } from '../api/pacientes'
 import Botao from '../components/Botao'
 import Campo from '../components/Campo'
 import Cartao from '../components/Cartao'
+import CalendarDatePicker from '../components/CalendarDatePicker'
 
 function dataBrasileira(data) {
   return data.split('-').reverse().join('/')
@@ -60,7 +61,7 @@ export default function Consultas() {
     <main className="mx-auto max-w-4xl space-y-6 px-6 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-tinta">Consultas</h1>
-        <Link to="/consultas/nova" state={{ paciente }} className="rounded-md bg-principal px-4 py-2 text-sm font-medium text-white hover:bg-principalClara">
+        <Link to="/consultas/nova" state={{ paciente }} className="rounded-md bg-acao px-4 py-2 text-sm font-medium text-white hover:bg-principalClara">
           Nova consulta
         </Link>
       </div>
@@ -90,7 +91,8 @@ export default function Consultas() {
               </ul>
             )}
           </div>
-          <Campo rotulo="Filtrar por data" type="date" value={data} onChange={(e) => setData(e.target.value)} />
+          <CalendarDatePicker label="Filtrar por data" value={data} className="w-full"
+            onChange={setData} />
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {paciente && <span>Paciente: <strong>{paciente.nome}</strong></span>}

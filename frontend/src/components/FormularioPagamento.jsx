@@ -3,6 +3,7 @@ import { registrarPagamento } from '../api/tratamento'
 import { formatarReais, reaisParaCentavos } from '../utils/dinheiro'
 import Botao from './Botao'
 import Campo from './Campo'
+import CalendarDatePicker from './CalendarDatePicker'
 import SelecaoFormaPagamento from './SelecaoFormaPagamento'
 
 function hoje() {
@@ -69,13 +70,8 @@ export default function FormularioPagamento({ parcela, onRegistrado, onCancelar 
           />
         </div>
         <div className="w-44">
-          <Campo
-            rotulo="Data"
-            type="date"
-            value={pagamento.data}
-            onChange={(e) => atualizarCampo('data', e.target.value)}
-            required
-          />
+          <CalendarDatePicker label="Data" value={pagamento.data} required className="w-full"
+            onChange={(date) => atualizarCampo('data', date)} />
         </div>
         <div className="w-40">
           <SelecaoFormaPagamento
