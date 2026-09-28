@@ -4,7 +4,7 @@ import { googleCalendarUrl } from '../api/auth'
 import { errorMessage, listEvents } from '../api/calendar'
 import { useAuth } from '../auth/AuthProvider'
 import Botao from '../components/Botao'
-import Campo from '../components/Campo'
+import CalendarDatePicker from '../components/CalendarDatePicker'
 import Cartao from '../components/Cartao'
 import CalendarEventForm from '../components/CalendarEventForm'
 import CalendarEventList from '../components/CalendarEventList'
@@ -94,10 +94,8 @@ export default function Agenda() {
     return () => { version.current++ }
   }, [date, view, user.calendar_connected])
   const period = selectedPeriod(date, view)
-  return <main className="mx-auto max-w-6xl space-y-6 px-6 py-10">
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <h1 className="text-2xl font-semibold">Agenda</h1>
-    </div>
+  const handleDateChange = (value) => { setDate(value); setNotice('') }
+  return <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 lg:py-8">
     {params.get('error') && <p role="alert" className="rounded-xl border border-alerta/30 bg-cartao px-4 py-3 text-sm text-alerta">{params.get('error') === 'configuration'
       ? 'A conexão com Google Agenda ainda está sendo configurada.'
       : 'A conexão não foi concluída. Autorize a agenda com a mesma conta do login.'}</p>}
@@ -109,17 +107,40 @@ export default function Agenda() {
       <p className="text-sm text-tintaSuave">Seus pacientes continuam disponíveis no menu Pacientes.</p>
       <a href={googleCalendarUrl} className="inline-flex rounded-full bg-acao px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-principalClara">
         Conectar Google Agenda</a>
-    </Cartao> : <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-      <section className="space-y-4" aria-label={`Agenda ${view === 'week' ? 'da semana' : 'do dia'}`}>
-        <div className="flex flex-wrap items-end gap-3">
-          <Campo rotulo={view === 'week' ? 'Data de referência' : 'Dia'} type="date" value={date} required onChange={(e) => { setDate(e.target.value); setNotice('') }} />
-          <div className="flex gap-2" role="group" aria-label="Visualização da agenda">
-            <Botao type="button" variante={view === 'day' ? 'primaria' : 'secundaria'} onClick={() => setView('day')}>Dia</Botao>
-            <Botao type="button" variante={view === 'week' ? 'primaria' : 'secundaria'} onClick={() => setView('week')}>Semana</Botao>
+    </Cartao> : <>
+      <section aria-label="Controles da agenda" className="rounded-2xl border border-borda bg-cartao p-3 shadow-sm sm:px-4 sm:py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <CalendarDatePicker value={date} onChange={handleDateChange} disabled={loading} />
+            <Botao type="button" variante="secundaria" className="h-9 !rounded-full px-3 py-1.5" disabled={loading || !date}
+              onClick={() => handleDateChange(today())}>Hoje</Botao>
+            <DateNavigation date={date} view={view} loading={loading} onChange={handleDateChange} />
           </div>
-          <Botao variante="secundaria" disabled={loading || !date} onClick={() => load()}>Atualizar</Botao>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-full bg-superficie p-1" role="group" aria-label="Visualização da agenda">
+              {['day', 'week'].map((option) => <button key={option} type="button" aria-pressed={view === option}
+                onClick={() => { setView(option); setNotice('') }}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${view === option ? 'bg-borda text-principal shadow-sm dark:bg-cartao' : 'text-tintaSuave hover:text-tinta'}`}>
+                {option === 'day' ? 'Dia' : 'Semana'}
+              </button>)}
+            </div>
+            <Botao variante="secundaria" aria-label="Atualizar agenda" title="Atualizar agenda"
+              className="!inline-flex h-12 w-12 items-center justify-center rounded-full !border-0 !bg-transparent !p-0 !text-tintaSuave transition-colors hover:!bg-transparent hover:!text-principal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-principal"
+              disabled={loading || !date} onClick={() => load()}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className={`h-8 w-8 ${loading ? 'animate-spin' : ''}`}>
+                <path d="M20 11a8 8 0 0 0-14.8-3L4 10M4 5v5h5M4 13a8 8 0 0 0 14.8 3L20 14m0 5v-5h-5"
+                  stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Botao>
+          </div>
         </div>
-        {period && <p className="text-sm text-tintaSuave">Exibindo: {periodDescription(period, view)}</p>}
+        {period && <p className="mt-3 border-t border-borda pt-3 text-xs font-medium capitalize text-tintaSuave">
+          {periodDescription(period, view)}
+        </p>}
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+      <section className="space-y-4" aria-label={`Agenda ${view === 'week' ? 'da semana' : 'do dia'}`}>
         {loading && <p role="status" className="text-tintaSuave">Carregando agenda...</p>}
         {!loading && <CalendarEventList events={events} onDeleted={(id) => {
           setEvents((current) => current.filter((event) => event.id !== id))
@@ -130,6 +151,7 @@ export default function Agenda() {
       <section aria-label="Criar agendamento"><CalendarEventForm onCreated={() => {
         setNotice('Agendamento criado no Google. Consulte o período selecionado para vê-lo.'); load()
       }} /></section>
-    </div>}
+      </div>
+    </>}
   </main>
 }
