@@ -4,6 +4,7 @@ import { getAuthStatus, googleLoginUrl, loginErrors } from '../api/auth'
 import { useAuth } from '../auth/AuthProvider'
 import Botao from '../components/Botao'
 import Cartao from '../components/Cartao'
+import GoogleIcon from '../components/GoogleIcon'
 
 export default function Login() {
   const { user, loading, error: sessionError, refresh } = useAuth()
@@ -36,8 +37,9 @@ export default function Login() {
         <p>{error || sessionError}</p>
         <Botao variante="secundaria" onClick={() => { checkConfiguration(); refresh() }}>Tentar novamente</Botao>
       </div>}
-      <Botao className="w-full" variante="secundaria" disabled={!configured || starting}
+      <Botao className="flex w-full items-center justify-center gap-3" variante="secundaria" disabled={!configured || starting}
         onClick={() => { setStarting(true); window.location.assign(googleLoginUrl) }}>
+        <GoogleIcon />
         {starting ? 'Redirecionando...' : 'Entrar com Google'}
       </Botao>
       <p className="text-xs text-tintaSuave">A conexão com sua agenda será autorizada separadamente.</p>
