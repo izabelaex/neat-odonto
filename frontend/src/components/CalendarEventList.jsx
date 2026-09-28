@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import Cartao from './Cartao'
 import DeleteCalendarEvent from './DeleteCalendarEvent'
 
-function eventTime(value) {
+export function eventTime(value) {
   if (value.dateTime) return new Date(value.dateTime).toLocaleString('pt-BR', {
     day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
   })
