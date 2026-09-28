@@ -97,18 +97,18 @@ export default function Agenda() {
   return <main className="mx-auto max-w-6xl space-y-6 px-6 py-10">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h1 className="text-2xl font-semibold">Agenda</h1>
-      {reconnect && <a href={googleCalendarUrl} className="rounded-md border border-borda bg-cartao px-4 py-2 text-sm font-medium text-principal">
-        Conectar Google Agenda</a>}
     </div>
-    {params.get('error') && <p role="alert" className="text-alerta">{params.get('error') === 'configuration'
+    {params.get('error') && <p role="alert" className="rounded-xl border border-alerta/30 bg-cartao px-4 py-3 text-sm text-alerta">{params.get('error') === 'configuration'
       ? 'A conexão com Google Agenda ainda está sendo configurada.'
       : 'A conexão não foi concluída. Autorize a agenda com a mesma conta do login.'}</p>}
-    {notice && <p role="status" className="text-ok">{notice}</p>}
-    {error && <p role="alert" className="text-alerta">{error}</p>}
-    {reconnect ? <Cartao className="space-y-3">
+    {notice && <p role="status" className="rounded-xl border border-principal/20 bg-cartao px-4 py-3 text-sm text-principal">{notice}</p>}
+    {error && <p role="alert" className="rounded-xl border border-alerta/30 bg-cartao px-4 py-3 text-sm text-alerta">{error}</p>}
+    {reconnect ? <Cartao className="space-y-3 rounded-3xl p-6 sm:p-8">
       <h2 className="text-lg font-semibold">Conecte sua agenda</h2>
       <p className="text-tintaSuave">Autorize o Google Agenda para consultar seus horários e criar agendamentos aqui.</p>
       <p className="text-sm text-tintaSuave">Seus pacientes continuam disponíveis no menu Pacientes.</p>
+      <a href={googleCalendarUrl} className="inline-flex rounded-full bg-acao px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-principalClara">
+        Conectar Google Agenda</a>
     </Cartao> : <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
       <section className="space-y-4" aria-label={`Agenda ${view === 'week' ? 'da semana' : 'do dia'}`}>
         <div className="flex flex-wrap items-end gap-3">
