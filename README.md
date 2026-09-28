@@ -83,3 +83,99 @@ Como dentista, eu gostaria de adicionar em cada consulta informações sobre o p
 
 Como dentista, eu gostaria de adicionar em cada paciente um plano de tratamento, que inclui os nomes dos procedimentos realizados e o orçamento combinado para eles, com o número de parcelas totais e já pagas.
 
+---
+
+## Documentação UML preliminar
+
+Os diagramas abaixo representam o domínio atual e o fluxo principal do sistema.
+
+### Diagrama de classes
+
+```mermaid
+classDiagram
+    class Paciente {
+        +int id
+        +string nome
+        +string telefone
+        +string cpf
+        +string endereco
+        +text queixa_principal
+    }
+    class DocumentoPaciente {
+        +int id
+        +string tipo
+        +string caminho_arquivo
+        +string descricao
+    }
+    class Consulta {
+        +int id
+        +date data
+        +text procedimentos_realizados
+        +text observacoes
+        +string google_event_id
+    }
+    class RegistroEsterilizacao {
+        +int id
+        +text identificacao_pacote
+        +string foto_pacote_caminho
+        +string ciclo
+        +date data_ciclo
+        +string responsavel
+    }
+    class PlanoTratamento {
+        +int id
+        +text procedimentos
+        +int valor_total_centavos
+        +string status
+    }
+    class Parcela {
+        +int id
+        +int numero
+        +int valor_centavos
+        +date vencimento
+    }
+    class Pagamento {
+        +int id
+        +int valor_centavos
+        +date data_pagamento
+        +string forma
+    }
+
+    Paciente "1" *-- "0..*" DocumentoPaciente
+    Paciente "1" *-- "0..*" Consulta
+    Consulta "1" *-- "0..1" RegistroEsterilizacao
+    Paciente "1" *-- "0..*" PlanoTratamento
+    PlanoTratamento "1" *-- "0..*" Parcela
+    Parcela "1" *-- "0..*" Pagamento
+```
+
+### Diagrama de sequência: agendar, atender e registrar plano
+
+```mermaid
+sequenceDiagram
+    actor Dentista
+    participant Tela as Frontend React
+    participant API as API FastAPI
+    participant Google as Google Calendar
+    participant Banco as Banco de dados
+
+    Dentista->>Tela: Seleciona paciente, procedimento e horário
+    Tela->>API: Cria agendamento
+    API->>Banco: Confirma paciente cadastrado
+    API->>Google: Cria evento identificado como Neat Odonto
+    Google-->>API: Retorna identificador do evento
+    API-->>Tela: Confirma agendamento
+
+    Dentista->>Tela: Registra consulta realizada
+    Tela->>API: Envia consulta e esterilização
+    API->>Banco: Salva consulta vinculada ao paciente e ao evento
+    Banco-->>API: Confirma persistência
+    API-->>Tela: Exibe histórico atualizado
+
+    Dentista->>Tela: Define plano e orçamento
+    Tela->>API: Envia procedimentos e parcelas combinadas
+    API->>Banco: Salva plano, parcelas e pagamentos
+    Banco-->>API: Retorna saldo atualizado
+    API-->>Tela: Exibe situação financeira
+```
+
