@@ -1,36 +1,47 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
-import Botao from './Botao'
+import AccountMenu from './AccountMenu'
+import tooth from '../assets/tooth.svg'
+
+const links = [
+  { to: '/agenda', label: 'Agenda' },
+  { to: '/pacientes', label: 'Pacientes' },
+  { to: '/consultas', label: 'Consultas' },
+]
 
 export default function AppLayout() {
   const { user, signOut } = useAuth()
+  const { pathname } = useLocation()
   const [error, setError] = useState('')
   const [leaving, setLeaving] = useState(false)
+  const activeIndex = Math.max(0, links.findIndex(({ to }) => pathname.startsWith(to)))
   async function exit() {
     setLeaving(true)
     setError('')
     try { await signOut() } catch { setError('Não foi possível sair. Tente novamente.') }
     finally { setLeaving(false) }
   }
-  const linkClass = ({ isActive }) => `rounded-md px-3 py-2 text-sm font-medium ${
-    isActive ? 'bg-principal text-white' : 'text-tintaSuave hover:bg-superficie'}`
   return <>
-    <header className="border-b border-borda bg-cartao">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-        <NavLink to="/agenda" className="text-xl font-semibold text-principal">Neat Odonto</NavLink>
-        <nav aria-label="Navegação principal" className="flex gap-2">
-          <NavLink to="/agenda" className={linkClass}>Agenda</NavLink>
-          <NavLink to="/pacientes" className={linkClass}>Pacientes</NavLink>
-          <NavLink to="/consultas" className={linkClass}>Consultas</NavLink>
+    <header className="bg-cabecalho text-white dark:border-b dark:border-cabecalhoDestaque/20">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-4 sm:px-6 md:flex-nowrap md:gap-6 md:py-5">
+        <NavLink to="/agenda" className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full text-xl font-semibold text-white focus-visible:outline-cabecalhoDestaque">
+          <span>Neat Odonto</span><img src={tooth} alt="" className="h-8 w-8" />
+        </NavLink>
+        <nav aria-label="Navegação principal" className="relative order-3 grid w-full grid-cols-3 py-1 md:order-none md:mx-auto md:w-72 md:shrink-0 lg:w-80">
+          <span aria-hidden="true" className="absolute inset-y-1 left-0 w-1/3 rounded-full bg-cabecalhoDestaque transition-transform duration-200 ease-out motion-reduce:transition-none dark:bg-acao"
+            style={{ transform: `translateX(${activeIndex * 100}%)` }} />
+          {links.map(({ to, label }) => <NavLink key={to} to={to}
+            className={({ isActive }) => `relative z-10 rounded-full px-3 py-2 text-center text-sm font-medium focus-visible:outline-white ${isActive ? 'text-cabecalho dark:text-white' : 'text-white/85 hover:text-white'}`}>
+            {label}
+          </NavLink>)}
         </nav>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-tintaSuave">{user.name}</span>
-          <Botao variante="secundaria" onClick={exit} disabled={leaving}>Sair</Botao>
-        </div>
+        <AccountMenu user={user} onSignOut={exit} leaving={leaving} />
       </div>
-      {error && <p role="alert" className="px-6 pb-3 text-alerta">{error}</p>}
     </header>
+    {error && <div className="border-b border-borda bg-cartao">
+      <p role="alert" className="mx-auto max-w-6xl px-4 py-2 text-sm text-alerta sm:px-6">{error}</p>
+    </div>}
     <Outlet />
   </>
 }
