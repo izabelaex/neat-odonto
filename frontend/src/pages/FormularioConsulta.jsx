@@ -151,21 +151,30 @@ export default function FormularioConsulta() {
         </p>}
         <section className="space-y-2">
           <h2 className="font-semibold">Paciente</h2>
-          {paciente && <p>Selecionado: <strong>{paciente.nome}</strong></p>}
-          <Campo rotulo="Buscar e selecionar paciente (obrigatório)" value={termo} onChange={(e) => setTermo(e.target.value)} placeholder="Digite o nome ou CPF e escolha um resultado" />
-          {erroBusca && <p role="alert" className="text-alerta">{erroBusca}</p>}
-          {termo.trim() && !buscandoPaciente && !erroBusca && resultados.length === 0 && <p className="text-sm text-tintaSuave">Nenhum paciente encontrado.</p>}
-          {termo.trim() && resultados.length > 0 && (
-            <ul className="rounded-md border border-borda">
-              {resultados.map((item) => (
-                <li key={item.id}>
-                  <button type="button" className="w-full px-3 py-2 text-left hover:bg-superficie" onClick={() => { setPaciente(item); setTermo(''); setResultados([]) }}>
-                    {item.nome}{item.telefone ? ` — ${item.telefone}` : ''}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          {paciente && <div className="flex flex-wrap items-baseline gap-x-2">
+            <p>Selecionado: <strong>{paciente.nome}</strong></p>
+            <button type="button" className="text-xs text-tintaSuave underline" onClick={() => {
+              setPaciente(null)
+              setTermo('')
+              setResultados([])
+            }}>Alterar paciente</button>
+          </div>}
+          {!paciente && <>
+            <Campo rotulo="Buscar e selecionar paciente (obrigatório)" value={termo} onChange={(e) => setTermo(e.target.value)} placeholder="Digite o nome ou CPF e escolha um resultado" />
+            {erroBusca && <p role="alert" className="text-alerta">{erroBusca}</p>}
+            {termo.trim() && !buscandoPaciente && !erroBusca && resultados.length === 0 && <p className="text-sm text-tintaSuave">Nenhum paciente encontrado.</p>}
+            {termo.trim() && resultados.length > 0 && (
+              <ul className="rounded-md border border-borda">
+                {resultados.map((item) => (
+                  <li key={item.id}>
+                    <button type="button" className="w-full px-3 py-2 text-left hover:bg-superficie" onClick={() => { setPaciente(item); setTermo(''); setResultados([]) }}>
+                      {item.nome}{item.telefone ? ` — ${item.telefone}` : ''}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>}
         </section>
 
         <Campo rotulo="Data da consulta" type="date" value={data} onChange={(e) => setData(e.target.value)} required />
