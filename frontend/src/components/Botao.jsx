@@ -1,7 +1,7 @@
 const VARIANTES = {
-  primaria: 'bg-principal text-white hover:bg-principalClara',
+  primaria: 'bg-acao text-white hover:bg-principalClara',
   secundaria: 'border border-borda bg-cartao text-tinta hover:bg-superficie',
-  perigo: 'border border-alerta text-alerta hover:bg-superficie',
+  perigo: 'border-0 bg-transparent !font-semibold text-red-600 hover:bg-transparent hover:underline dark:text-red-400 dark:hover:text-red-300',
 }
 
 /**

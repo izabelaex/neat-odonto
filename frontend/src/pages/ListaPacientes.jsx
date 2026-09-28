@@ -77,9 +77,15 @@ export default function ListaPacientes() {
                   {paciente.telefone || 'Sem telefone cadastrado'}
                 </p>
               </Link>
-              <Botao variante="perigo" type="button" onClick={() => excluir(paciente)}>
-                Excluir
-              </Botao>
+              <div className="flex shrink-0 items-center gap-3">
+                <Link to={`/pacientes/${paciente.id}/editar`}
+                  className="text-sm font-semibold text-acao transition-colors hover:underline">
+                  Editar
+                </Link>
+                <Botao variante="perigo" type="button" onClick={() => excluir(paciente)}>
+                  Excluir
+                </Botao>
+              </div>
             </Cartao>
           </li>
         ))}

@@ -9,6 +9,7 @@ import {
 import Botao from '../components/Botao'
 import Campo from '../components/Campo'
 import Cartao from '../components/Cartao'
+import SeletorArquivo from '../components/SeletorArquivo'
 
 const TIPOS_DOCUMENTO = [
   { valor: 'foto', rotulo: 'Foto' },
@@ -170,14 +171,10 @@ export default function FichaPaciente() {
               />
             </div>
           </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setNovoDocumento((atual) => ({ ...atual, arquivo: e.target.files[0] }))
-            }
-            className="block w-full text-sm text-tintaSuave"
-          />
+          <SeletorArquivo label="Arquivo" accept="image/*" hint="Selecione uma foto ou radiografia."
+            file={novoDocumento.arquivo} onChange={(arquivo) =>
+              setNovoDocumento((atual) => ({ ...atual, arquivo }))
+            } />
           <Botao type="submit" disabled={enviando || !novoDocumento.arquivo}>
             {enviando ? 'Enviando...' : 'Adicionar documento'}
           </Botao>

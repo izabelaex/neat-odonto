@@ -6,6 +6,8 @@ import { buscarPacientes } from '../api/pacientes'
 import Botao from '../components/Botao'
 import Campo from '../components/Campo'
 import Cartao from '../components/Cartao'
+import CalendarDatePicker from '../components/CalendarDatePicker'
+import SeletorArquivo from '../components/SeletorArquivo'
 
 const ESTERILIZACAO_VAZIA = {
   identificacao_pacote: '', ciclo: '', data_ciclo: '', responsavel: '',
@@ -107,6 +109,10 @@ export default function FormularioConsulta() {
       setErro('Selecione o paciente na lista de resultados.')
       return
     }
+    if (!data || !esterilizacao.data_ciclo) {
+      setErro('Informe a data da consulta e a data do ciclo de esterilização.')
+      return
+    }
     if (!esterilizacao.identificacao_pacote.trim() && !foto && !(fotoExistente && !removerFoto)) {
       setErro('Identifique o pacote por texto ou foto.')
       return
@@ -177,7 +183,7 @@ export default function FormularioConsulta() {
           </>}
         </section>
 
-        <Campo rotulo="Data da consulta" type="date" value={data} onChange={(e) => setData(e.target.value)} required />
+        <CalendarDatePicker label="Data da consulta" value={data} onChange={setData} required className="w-full" />
         <Campo rotulo="Procedimentos realizados" as="textarea" rows={4} value={procedimentos} onChange={(e) => setProcedimentos(e.target.value)} required />
         <Campo rotulo="Observações (opcional)" as="textarea" rows={3} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} />
 
@@ -189,12 +195,11 @@ export default function FormularioConsulta() {
           {fotoExistente && (
             <label className="block text-sm"><input type="checkbox" checked={removerFoto} onChange={(e) => { setRemoverFoto(e.target.checked); if (e.target.checked) setFoto(null) }} /> Remover foto atual</label>
           )}
-          <label className="block text-sm font-medium text-tintaSuave">
-            Foto do pacote
-            <input type="file" accept="image/jpeg,image/png,image/webp" disabled={removerFoto} onChange={(e) => setFoto(e.target.files[0] || null)} className="mt-1 block w-full text-sm" />
-          </label>
+          <SeletorArquivo label="Foto do pacote" accept="image/jpeg,image/png,image/webp"
+            hint="JPG, PNG ou WebP" disabled={removerFoto} file={foto} onChange={setFoto} />
           <Campo rotulo="Ciclo" value={esterilizacao.ciclo} onChange={(e) => alterarEsterilizacao('ciclo', e.target.value)} required maxLength={60} />
-          <Campo rotulo="Data do ciclo" type="date" value={esterilizacao.data_ciclo} onChange={(e) => alterarEsterilizacao('data_ciclo', e.target.value)} required />
+          <CalendarDatePicker label="Data do ciclo" value={esterilizacao.data_ciclo} required className="w-full"
+            onChange={(date) => alterarEsterilizacao('data_ciclo', date)} />
           <Campo rotulo="Responsável pela esterilização" value={esterilizacao.responsavel} onChange={(e) => alterarEsterilizacao('responsavel', e.target.value)} required maxLength={120} />
         </section>
 
