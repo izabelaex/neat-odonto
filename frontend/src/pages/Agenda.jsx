@@ -4,10 +4,11 @@ import { googleCalendarUrl } from '../api/auth'
 import { errorMessage, listEvents } from '../api/calendar'
 import { useAuth } from '../auth/AuthProvider'
 import Botao from '../components/Botao'
-import CalendarDatePicker from '../components/CalendarDatePicker'
 import Cartao from '../components/Cartao'
+import CalendarDatePicker from '../components/CalendarDatePicker'
 import CalendarEventForm from '../components/CalendarEventForm'
 import CalendarEventList from '../components/CalendarEventList'
+import CalendarWeekGrid from '../components/CalendarWeekGrid'
 
 function today() {
   const now = new Date()
@@ -71,6 +72,7 @@ export default function Agenda() {
   const [notice, setNotice] = useState('')
   const [reconnect, setReconnect] = useState(!user.calendar_connected)
   const version = useRef(0)
+
   async function load(pageToken = null) {
     const current = ++version.current
     setError(''); setLoading(true)
@@ -89,18 +91,35 @@ export default function Agenda() {
       if (err.response?.status === 409) setReconnect(true)
     } finally { if (version.current === current) setLoading(false) }
   }
+
   useEffect(() => {
     if (user.calendar_connected) load()
     return () => { version.current++ }
   }, [date, view, user.calendar_connected])
+
   const period = selectedPeriod(date, view)
+  const days = period && view === 'week'
+    ? Array.from({ length: 5 }, (_, index) => {
+      const day = new Date(period.start)
+      day.setDate(day.getDate() + index)
+      return day
+    }) : []
+  const handleDeleted = (id) => {
+    setEvents((current) => current.filter((event) => event.id !== id))
+    setNotice('Agendamento excluído do Google Calendar.')
+  }
   const handleDateChange = (value) => { setDate(value); setNotice('') }
+  const form = <CalendarEventForm onCreated={() => {
+    setNotice('Agendamento criado no Google. Consulte o período selecionado para vê-lo.'); load()
+  }} />
+
   return <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 lg:py-8">
     {params.get('error') && <p role="alert" className="rounded-xl border border-alerta/30 bg-cartao px-4 py-3 text-sm text-alerta">{params.get('error') === 'configuration'
       ? 'A conexão com Google Agenda ainda está sendo configurada.'
       : 'A conexão não foi concluída. Autorize a agenda com a mesma conta do login.'}</p>}
     {notice && <p role="status" className="rounded-xl border border-principal/20 bg-cartao px-4 py-3 text-sm text-principal">{notice}</p>}
     {error && <p role="alert" className="rounded-xl border border-alerta/30 bg-cartao px-4 py-3 text-sm text-alerta">{error}</p>}
+
     {reconnect ? <Cartao className="space-y-3 rounded-3xl p-6 sm:p-8">
       <h2 className="text-lg font-semibold">Conecte sua agenda</h2>
       <p className="text-tintaSuave">Autorize o Google Agenda para consultar seus horários e criar agendamentos aqui.</p>
@@ -139,19 +158,37 @@ export default function Agenda() {
         </p>}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-      <section className="space-y-4" aria-label={`Agenda ${view === 'week' ? 'da semana' : 'do dia'}`}>
-        {loading && <p role="status" className="text-tintaSuave">Carregando agenda...</p>}
-        {!loading && <CalendarEventList events={events} onDeleted={(id) => {
-          setEvents((current) => current.filter((event) => event.id !== id))
-          setNotice('Agendamento excluído do Google Calendar.')
-        }} />}
-        {nextPage && <Botao variante="secundaria" disabled={loading} onClick={() => load(nextPage)}>Carregar mais</Botao>}
-      </section>
-      <section aria-label="Criar agendamento"><CalendarEventForm onCreated={() => {
-        setNotice('Agendamento criado no Google. Consulte o período selecionado para vê-lo.'); load()
-      }} /></section>
-      </div>
+      {view === 'day' ? <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <section className="min-w-0 space-y-3" aria-label="Agendamentos do dia">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <span aria-hidden="true" />
+            <h2 className="text-center text-lg font-semibold text-tinta">Atendimentos</h2>
+            <span className="justify-self-end rounded-full bg-superficie px-3 py-1 text-xs font-medium text-tintaSuave">
+              {events.length} {events.length === 1 ? 'agendamento' : 'agendamentos'}
+            </span>
+          </div>
+          <CalendarEventList events={events} loading={loading} onDeleted={handleDeleted} />
+          {nextPage && <Botao variante="secundaria" className="rounded-full" disabled={loading} onClick={() => load(nextPage)}>Carregar mais</Botao>}
+        </section>
+        <section aria-label="Criar agendamento" className="lg:sticky lg:top-6">{form}</section>
+      </div> : <div className="space-y-6">
+        <section className="space-y-3" aria-label="Agendamentos da semana">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <span aria-hidden="true" />
+            <h2 className="text-center text-lg font-semibold text-tinta">Semana</h2>
+            <span className="justify-self-end rounded-full bg-superficie px-3 py-1 text-xs font-medium text-tintaSuave">
+              {events.length} {events.length === 1 ? 'agendamento' : 'agendamentos'}
+            </span>
+          </div>
+          {loading && <p role="status" className="text-sm text-tintaSuave">Carregando agenda...</p>}
+          {days.length === 5 ? <CalendarWeekGrid days={days} events={events} onDeleted={handleDeleted} loading={loading} />
+            : <p className="rounded-2xl border border-dashed border-borda bg-cartao px-6 py-10 text-center text-sm text-tintaSuave">
+              Selecione uma data para exibir a semana.
+            </p>}
+          {nextPage && <Botao variante="secundaria" className="rounded-full" disabled={loading} onClick={() => load(nextPage)}>Carregar mais</Botao>}
+        </section>
+        <section aria-label="Criar agendamento" className="mx-auto w-full max-w-3xl">{form}</section>
+      </div>}
     </>}
   </main>
 }
