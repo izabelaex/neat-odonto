@@ -45,14 +45,16 @@ export default function CalendarEventForm({ onCreated }) {
     } catch (err) { setError(errorMessage(err, 'Não foi possível confirmar. Tente novamente sem alterar os campos.')) }
     finally { setSaving(false) }
   }
-  return <Cartao as="form" onSubmit={save} className="space-y-4">
+  return <Cartao as="form" onSubmit={save} className="space-y-4 rounded-3xl">
     <h2 className="text-lg font-semibold">Novo agendamento</h2>
     <PatientSearchSelect patient={draft.patient} disabled={saving} onChange={(patient) => change('patient', patient)} />
-    <Campo rotulo="Título (procedimento)" value={draft.title} required maxLength={160} disabled={saving}
-      placeholder="Limpeza, avaliação ou retorno" onChange={(e) => change('title', e.target.value)} />
-    <p className="text-xs text-tintaSuave">O procedimento será enviado ao Google. Evite CPF e informações clínicas.</p>
+    <div className="space-y-1">
+      <Campo rotulo="Procedimento" value={draft.title} required maxLength={160} disabled={saving}
+        placeholder="Limpeza, avaliação ou retorno" onChange={(e) => change('title', e.target.value)} />
+      <p className="px-3 text-xs leading-relaxed text-tintaSuave">O procedimento será enviado ao Google. Evite CPF e informações clínicas.</p>
+    </div>
     <AppointmentScheduleFields value={draft} disabled={saving} onChange={changeSchedule} />
     {error && <p role="alert" className="text-alerta">{error}</p>}
-    <Botao type="submit" disabled={saving}>{saving ? 'Salvando...' : 'Agendar consulta'}</Botao>
+    <Botao type="submit" className="w-full rounded-full" disabled={saving}>{saving ? 'Salvando...' : 'Agendar consulta'}</Botao>
   </Cartao>
 }
