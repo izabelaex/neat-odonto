@@ -3,6 +3,36 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --color-superficie: #F7F6F3;
+    --color-cartao: #FFFFFF;
+    --color-tinta: #1C2B2D;
+    --color-tinta-suave: #5A6B6D;
+    --color-borda: #DFE2DE;
+    --color-principal: #0F5257;
+    --color-acao: #0F5257;
+    --color-principal-clara: #127C82;
+    --color-alerta: #DC2626;
+    --color-ok: #2F7A4D;
+    --color-cabecalho: #0B373B;
+    --color-cabecalho-destaque: #7FD0CD;
+  }
+  :root.dark {
+    color-scheme: dark;
+    --color-superficie: #111D1F;
+    --color-cartao: #1B292B;
+    --color-tinta: #F3F7F5;
+    --color-tinta-suave: #B8C9C7;
+    --color-borda: #405759;
+    --color-principal: #7FD0CD;
+    --color-acao: #17666C;
+    --color-principal-clara: #1F7076;
+    --color-alerta: #F87171;
+    --color-ok: #81C99A;
+    --color-cabecalho: #0B282B;
+    --color-cabecalho-destaque: #7FD0CD;
+  }
   body {
     @apply bg-superficie text-tinta antialiased;
   }

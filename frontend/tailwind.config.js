@@ -7,15 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        superficie: '#F7F6F3',   // fundo das telas
-        cartao: '#FFFFFF',
-        tinta: '#1C2B2D',        // texto principal
-        tintaSuave: '#5A6B6D',   // texto secundario
-        borda: '#DFE2DE',
-        principal: '#0F5257',    // acao primaria
-        principalClara: '#127C82',
-        alerta: '#B3541E',       // pendencia, parcela em aberto
-        ok: '#2F7A4D',
+        superficie: 'var(--color-superficie)',
+        cartao: 'var(--color-cartao)',
+        tinta: 'var(--color-tinta)',
+        tintaSuave: 'var(--color-tinta-suave)',
+        borda: 'var(--color-borda)',
+        principal: 'var(--color-principal)',
+        acao: 'var(--color-acao)',
+        principalClara: 'var(--color-principal-clara)',
+        alerta: 'var(--color-alerta)',
+        ok: 'var(--color-ok)',
+        cabecalho: 'var(--color-cabecalho)',
+        cabecalhoDestaque: 'var(--color-cabecalho-destaque)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
