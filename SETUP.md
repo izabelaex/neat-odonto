@@ -27,6 +27,12 @@ cp .env.example .env
 npm run dev                      # http://localhost:5173
 ```
 
+## Testes E2E
+
+Ver `e2e/README.md`. Sobem backend e frontend próprios, em portas e banco isolados do
+ambiente de desenvolvimento — não precisa parar o `uvicorn`/`npm run dev` normais nem
+reconfigurar `ALLOWED_GOOGLE_EMAILS` para rodar os testes.
+
 ## Trabalhando com o banco
 
 Nunca altere o schema direto no banco. O fluxo é sempre:
