@@ -5,6 +5,10 @@ __pycache__/
 venv/
 *.db
 .env
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
 
 # Uploads de pacientes (fotos, radiografias) nunca vao para o repositorio
 backend/uploads/
