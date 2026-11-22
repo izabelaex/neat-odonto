@@ -1,0 +1,62 @@
+import { screen, waitFor, within } from '@testing-library/react'
+import { expect, it } from 'vitest'
+import { patient, plan, installment, renderPage, respond, sent } from './support'
+
+it('creates a plan, updates its budget and status, and confirms deletion', async () => {
+  respond('get', '/pacientes/1', patient)
+  respond('get', '/pacientes/1/planos-tratamento', [])
+  respond('post', '/pacientes/1/planos-tratamento', plan, 201)
+  respond('put', '/planos-tratamento/1/orcamento', { ...plan, valor_total_centavos: 20000 })
+  respond('put', '/planos-tratamento/1', { ...plan, status: 'concluido' })
+  respond('delete', '/planos-tratamento/1', null, 204)
+  const user = renderPage('/pacientes/1/tratamento')
+  await user.click(await screen.findByRole('button', { name: 'Novo plano' }))
+  await user.type(screen.getByLabelText('Procedimentos'), 'Limpeza')
+  await user.type(screen.getByLabelText('Orçamento total (R$)'), '100,00')
+  await user.clear(screen.getByLabelText('Número de parcelas'))
+  await user.type(screen.getByLabelText('Número de parcelas'), '1')
+  await user.click(screen.getByRole('button', { name: 'Salvar plano' }))
+  expect(await screen.findByText('Limpeza')).toBeVisible()
+  expect(sent('post', '/pacientes/1/planos-tratamento')[0].body).toEqual({
+    procedimentos: 'Limpeza', valor_total_centavos: 10000, numero_parcelas: 1 })
+  await user.click(screen.getByRole('button', { name: 'Alterar orçamento' }))
+  await user.clear(screen.getByLabelText('Orçamento total (R$)'))
+  await user.type(screen.getByLabelText('Orçamento total (R$)'), '200,00')
+  await user.click(screen.getByRole('button', { name: 'Salvar orçamento' }))
+  await waitFor(() => expect(sent('put', '/planos-tratamento/1/orcamento')[0].body.valor_total_centavos).toBe(20000))
+  await user.selectOptions(screen.getByLabelText('Situação do plano'), 'concluido')
+  await waitFor(() => expect(screen.getByLabelText('Situação do plano')).toHaveValue('concluido'))
+  await user.click(screen.getByRole('button', { name: 'Excluir plano' }))
+  await user.click(screen.getByRole('button', { name: 'Manter plano' }))
+  expect(sent('delete', '/planos-tratamento/1')).toHaveLength(0)
+  await user.click(screen.getByRole('button', { name: 'Excluir plano' }))
+  await user.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
+  expect(await screen.findByText('Nenhum plano de tratamento cadastrado ainda.')).toBeVisible()
+})
+
+it('registers partial payment and reverses it with updated totals', async () => {
+  const payment = { id: 7, valor_centavos: 2500, data_pagamento: '2026-10-10', forma: 'pix' }
+  const updated = { ...plan, valor_pago_centavos: 2500,
+    parcelas: [{ ...installment, valor_pago_centavos: 2500, pagamentos: [payment] }] }
+  respond('get', '/pacientes/1', patient)
+  respond('get', '/pacientes/1/planos-tratamento', [plan])
+  respond('post', '/parcelas/1/pagamentos', updated, 201)
+  respond('delete', '/pagamentos/7', plan)
+  const user = renderPage('/pacientes/1/tratamento')
+  await user.click(await screen.findByRole('button', { name: 'Registrar pagamento' }))
+  const form = screen.getByLabelText('Valor (R$)').closest('form')
+  await user.clear(screen.getByLabelText('Valor (R$)'))
+  await user.type(screen.getByLabelText('Valor (R$)'), '25,00')
+  await user.selectOptions(screen.getByLabelText('Forma'), 'pix')
+  await user.click(within(form).getByRole('button', { name: 'Registrar pagamento' }))
+  expect(await screen.findByText('Paga em parte')).toBeVisible()
+  expect(sent('post', '/parcelas/1/pagamentos')[0].body).toMatchObject({ valor_centavos: 2500, forma: 'pix' })
+  expect(screen.getByText('10/10/2026')).toBeVisible()
+  await user.click(screen.getByRole('button', { name: 'Remover' }))
+  await user.click(screen.getByRole('button', { name: 'Manter pagamento' }))
+  expect(sent('delete', '/pagamentos/7')).toHaveLength(0)
+  await user.click(screen.getByRole('button', { name: 'Remover' }))
+  await user.click(screen.getByRole('button', { name: 'Confirmar remoção' }))
+  expect(await screen.findByText('Nenhum pagamento registrado ainda.')).toBeVisible()
+  expect(screen.getByText('Em aberto')).toBeVisible()
+})
