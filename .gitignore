@@ -17,6 +17,7 @@ backend/uploads/
 node_modules/
 dist/
 .vite/
+frontend/coverage/
 
 # Testes E2E (Playwright)
 e2e/.auth/
